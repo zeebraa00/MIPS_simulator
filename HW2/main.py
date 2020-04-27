@@ -3,6 +3,10 @@ import sys
 
 arr1=[]
 arr2=[]
+arr4=[]
+
+mips_code=""
+
 registers=[
     "0x00000000", # $0
     "0x00000000", # $1
@@ -39,26 +43,64 @@ registers=[
     "0x00000000" # pc register
 ]
 
-def func2() :
+instruction_memory="0x00000000"
+
+def init() : # initiate registers array
+    for i in range (33) :
+        registers[i]="0x00000000"
+
+def func2() : # command == loadinst
     filename=command[9:]
 
-def func1() :
-    filename=command[5:]
-    address=filename
-
     try :
-        f=open(address, "rb")
+        f=open(filename, "rb")
         string=f.read()
         num=len(string)/4
         for i in range(num) :
             hex=binascii.b2a_hex(string[i*4:(i+1)*4])
             convert_to_binary(hex)
-        convert_to_MIPS()
+        convert_to_MIPS(0)
         
     except :
         sys.stderr.write("No file: %s\n" % filename)
 
-def convert_to_MIPS() :
+def func3() : # command == run
+    num=int(command[4:])
+    ok=0
+    for i in range(num) :
+        if (i < len(arr4)) :
+            print(arr4[i])
+            if (i==num-1) :
+                print("Executed %d instructions" % (i+1))
+        else :
+            ok=i
+            break
+    if (ok==len(arr4)) :
+        print("Executed %d instructions" % len(arr4))
+        
+def func4() : # command == registers
+    for i in range(32) :
+        print("$%d: %s" %(i, registers[i]))
+    print("PC: %s" %(registers[i]))
+
+def func1() : # command == read
+    filename=command[5:]
+
+    try :
+        f=open(filename, "rb")
+        string=f.read()
+        num=len(string)/4
+        for i in range(num) :
+            hex=binascii.b2a_hex(string[i*4:(i+1)*4])
+            convert_to_binary(hex)
+        convert_to_MIPS(1)
+        
+    except :
+        sys.stderr.write("No file: %s\n" % filename)
+
+def convert_to_MIPS(agree) :
+    # arr1 : binary code
+    # arr2 : hex code
     total_num=len(arr1)
 
     for i in range(total_num) :
@@ -72,96 +114,96 @@ def convert_to_MIPS() :
             funct=int(arr1[i][26:],2)
             if funct==32 :
                 op="add"
-                print("inst %d: %s %s $%d, $%d, $%d" % (i, arr2[i], op, rd, rs, rt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rs)+", $"+str(rt)
             elif funct==33 :
                 op="addu"
-                print("inst %d: %s %s $%d, $%d, $%d" % (i, arr2[i], op, rd, rs, rt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rs)+", $"+str(rt)
             elif funct==34 :
                 op="sub"
-                print("inst %d: %s %s $%d, $%d, $%d" % (i, arr2[i], op, rd, rs, rt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rs)+", $"+str(rt)
             elif funct==35 :
                 op="subu"
-                print("inst %d: %s %s $%d, $%d, $%d" % (i, arr2[i], op, rd, rs, rt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rs)+", $"+str(rt)
             elif funct==36 :
                 op="and"
-                print("inst %d: %s %s $%d, $%d, $%d" % (i, arr2[i], op, rd, rs, rt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rs)+", $"+str(rt)
             elif funct==37 :
                 op="or"
-                print("inst %d: %s %s $%d, $%d, $%d" % (i, arr2[i], op, rd, rs, rt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rs)+", $"+str(rt)
             elif funct==38 :
                 op="xor"
-                print("inst %d: %s %s $%d, $%d, $%d" % (i, arr2[i], op, rd, rs, rt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rs)+", $"+str(rt)
             elif funct==39 :
                 op="nor"
-                print("inst %d: %s %s $%d, $%d, $%d" % (i, arr2[i], op, rd, rs, rt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rs)+", $"+str(rt)
             elif funct==42 :
                 op="slt"
-                print("inst %d: %s %s $%d, $%d, $%d" % (i, arr2[i], op, rd, rs, rt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rs)+", $"+str(rt)
             elif funct==43 :
                 op="sltv"
-                print("inst %d: %s %s $%d, $%d, $%d" % (i, arr2[i], op, rd, rs, rt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rs)+", $"+str(rt)
             elif funct==24 :
                 op="mult"
-                print("inst %d: %s %s $%d, $%d" % (i, arr2[i], op, rs, rt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rs)+", $"+str(rt)
             elif funct==25 :
                 op="multu"
-                print("inst %d: %s %s $%d, $%d" % (i, arr2[i], op, rs, rt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rs)+", $"+str(rt)
             elif funct==26 :
                 op="div"
-                print("inst %d: %s %s $%d, $%d" % (i, arr2[i], op, rs, rt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rs)+", $"+str(rt)
             elif funct==27 :
                 op="divu"
-                print("inst %d: %s %s $%d, $%d" % (i, arr2[i], op, rs, rt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rs)+", $"+str(rt)
             elif funct==8 :
                 op="jr"
-                print("inst %d: %s %s $%d" % (i, arr2[i], op, rs))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rs)
             elif funct==9 :
                 op="jalr"
-                print("inst %d: %s %s $%d" % (i, arr2[i], op, rs))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rs)
             elif funct==17 :
                 op="mthi"
-                print("inst %d: %s %s $%d" % (i, arr2[i], op, rs))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rs)
             elif funct==19 :
                 op="mtlo"
-                print("inst %d: %s %s $%d" % (i, arr2[i], op, rs))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rs)
             elif funct==16 :
                 op="mfhi"
-                print("inst %d: %s %s $%d" % (i, arr2[i], op, rd))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)
             elif funct==18 :
                 op="mflo"
-                print("inst %d: %s %s $%d" % (i, arr2[i], op, rd))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)
             elif funct==0 :
                 op="sll"
-                print("inst %d: %s %s $%d, $%d, %d" % (i, arr2[i], op, rd, rt, shamt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rt)+", "+str(shamt)
             elif funct==2 :
                 op="srl"
-                print("inst %d: %s %s $%d, $%d, %d" % (i, arr2[i], op, rd, rt, shamt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rt)+", "+str(shamt)
             elif funct==3 :
                 op="sra"
-                print("inst %d: %s %s $%d, $%d, %d" % (i, arr2[i], op, rd, rt, shamt))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rt)+", "+str(shamt)
             elif funct==4 :
                 op="sllv"
-                print("inst %d: %s %s $%d, $%d, $%d" % (i, arr2[i], op, rd, rt, rs))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rt)+", $"+str(rs)
             elif funct==6 :
                 op="srlv"
-                print("inst %d: %s %s $%d, $%d, $%d" % (i, arr2[i], op, rd, rt, rs))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rt)+", $"+str(rs)
             elif funct==7 :
                 op="srav"
-                print("inst %d: %s %s $%d, $%d, $%d" % (i, arr2[i], op, rd, rt, rs))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rt)+", $"+str(rs)
             elif funct==12 :
                 op="syscall"
-                print("inst %d: %s %s" % (i, arr2[i], op))
+                mips_code=str(arr2[i])+" "+op
             else :
-                print("inst %d: %s unknown instruction" % (i, arr2[i]))
+                mips_code=str(arr2[i])+" unknown instruction"
             
         elif ((opcode==2)or(opcode==3)) : # J type instructions
             pseudo_address=int(arr1[i][6:],2)
             if opcode==2 :
                 op="j"
-                print("inst %d: %s %s %s" % (i, arr2[i], op, pseudo_address))
+                mips_code=str(arr2[i])+" "+op+" "+str(pseudo_address)
             elif opcode==3 :
                 op="jal"
-                print("inst %d: %s %s %s" % (i, arr2[i], op, pseudo_address))
+                mips_code=str(arr2[i])+" "+op+" "+str(pseudo_address)
 
         else : # I type instructions
             rs=int(arr1[i][6:11],2)
@@ -187,60 +229,64 @@ def convert_to_MIPS() :
 
             if opcode==8 :
                 op="addi"
-                print("inst %d: %s %s $%d, $%d, %d" % (i, arr2[i], op, rt, rs, imm))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", $"+str(rs)+", "+str(imm)
             elif opcode==9 :
                 op="addiu"
-                print("inst %d: %s %s $%d, $%d, %d" % (i, arr2[i], op, rt, rs, imm))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", $"+str(rs)+", "+str(imm)
             elif opcode==12 :
                 op="andi"
-                print("inst %d: %s %s $%d, $%d, %d" % (i, arr2[i], op, rt, rs, imm))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", $"+str(rs)+", "+str(imm)
             elif opcode==13 :
                 op="ori"
-                print("inst %d: %s %s $%d, $%d, %d" % (i, arr2[i], op, rt, rs, imm))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", $"+str(rs)+", "+str(imm)
             elif opcode==10 :
                 op="slti"
-                print("inst %d: %s %s $%d, $%d, %d" % (i, arr2[i], op, rt, rs, imm))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", $"+str(rs)+", "+str(imm)
             elif opcode==11 :
                 op="sltiu"
-                print("inst %d: %s %s $%d, $%d, %d" % (i, arr2[i], op, rt, rs, imm))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", $"+str(rs)+", "+str(imm)
             elif opcode==14 :
                 op="xori"
-                print("inst %d: %s %s $%d, $%d, %d" % (i, arr2[i], op, rt, rs, imm))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", $"+str(rs)+", "+str(imm)
             elif opcode==4 :
                 op="beq"
-                print("inst %d: %s %s $%d, $%d, %d" % (i, arr2[i], op, rs, rt, imm))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rs)+", $"+str(rt)+", "+str(imm)
             elif opcode==5 :
                 op="bne"
-                print("inst %d: %s %s $%d, $%d, %d" % (i, arr2[i], op, rs, rt, imm))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rs)+", $"+str(rt)+", "+str(imm)
             elif opcode==32 :
                 op="lb"
-                print("inst %d: %s %s $%d, %d($%d)" % (i, arr2[i], op, rt, imm, rs))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", "+str(imm)+"($"+str(rs)+")"
             elif opcode==36 :
                 op="lbu"
-                print("inst %d: %s %s $%d, %d($%d)" % (i, arr2[i], op, rt, imm, rs))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", "+str(imm)+"($"+str(rs)+")"
             elif opcode==33 :
                 op="lh"
-                print("inst %d: %s %s $%d, %d($%d)" % (i, arr2[i], op, rt, imm, rs))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", "+str(imm)+"($"+str(rs)+")"
             elif opcode==37 :
                 op="lhu"
-                print("inst %d: %s %s $%d, %d($%d)" % (i, arr2[i], op, rt, imm, rs))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", "+str(imm)+"($"+str(rs)+")"
             elif opcode==35 :
                 op="lw"
-                print("inst %d: %s %s $%d, %d($%d)" % (i, arr2[i], op, rt, imm, rs))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", "+str(imm)+"($"+str(rs)+")"
             elif opcode==40 :
                 op="sb"
-                print("inst %d: %s %s $%d, %d($%d)" % (i, arr2[i], op, rt, imm, rs))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", "+str(imm)+"($"+str(rs)+")"
             elif opcode==41 :
                 op="sh"
-                print("inst %d: %s %s $%d, %d($%d)" % (i, arr2[i], op, rt, imm, rs))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", "+str(imm)+"($"+str(rs)+")"
             elif opcode==43 :
                 op="sw"
-                print("inst %d: %s %s $%d, %d($%d)" % (i, arr2[i], op, rt, imm, rs))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", "+str(imm)+"($"+str(rs)+")"
             elif opcode==15 :
                 op="lui"
-                print("inst %d: %s %s $%d, %d" % (i, arr2[i], op, rt, imm))
+                mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", "+str(imm)
             else :
-                print("inst %d: %s unknown instruction" % (i, arr2[i]))
+                mips_code=str(arr2[i])+" unknown instruction"
+        if (agree==1) :
+            print("inst %d: %s" % (i, mips_code))
+        elif (agree==0) :
+            arr4.append(mips_code)
 
 def convert_to_binary(hex) :
     arr=[]
@@ -267,8 +313,8 @@ def convert_to_binary(hex) :
     for i in range(8) :
         tmp+=arr[i]
     # print(tmp)
-    arr2.append(hex)
-    arr1.append(tmp)
+    arr2.append(hex) # arr2 : hex code
+    arr1.append(tmp) # arr1 : binary code
 
 while True :
     arr1=[]
@@ -283,7 +329,9 @@ while True :
         func2()
     elif (command[0:3]=="run") :
         func3()
-    elif (command[0:8]=="register") :
+    elif (command[0:]=="registers") :
         func4()
+    elif (command[0:]=="test") :
+        init()
     else :
         print("wrong input")
