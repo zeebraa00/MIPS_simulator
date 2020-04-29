@@ -555,7 +555,6 @@ def operate(i) :
                 for i in range(len(temp)) :
                     temp_str+=str(temp[i])
                 tmp2=bin(int(temp_str,2)+1)
-                print(tmp2)
             remain1=34-len(tmp1)
             remain2=34-len(tmp2)
             tmp1=tmp1[:2]+remain1*"0"+tmp1[2:]
@@ -580,7 +579,7 @@ def operate(i) :
                 compute="0x00000001"
             elif (tmp1[2]=="0" and tmp2[2]=="1") : # imm is negative
                 compute="0x00000000"
-            elif () : # both are positive
+            else : # both are positive
                 compute=("0x00000001" if ( int(registers[rs],0)<imm) else "0x00000000")
             registers[rt]=compute #################
 
