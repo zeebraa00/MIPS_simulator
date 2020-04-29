@@ -9,6 +9,7 @@ for i in range(2,10) :
 print(output)
 
 
+
 temp_imm=hex(12412312312)
 print(temp_imm)
 print(temp_imm[:4])
@@ -40,6 +41,13 @@ if (arr[1]=="0") :
 arr="0x00000010"
 barr=bin(int(arr,0))
 print(arr[-4:])
+
+
+ 00001 01001 100000
+
+
+
+1111 1111 1111 1111 1111 1111 1111 111
 
 
 0b 1111 1111 1111 1111 1111 1111 1111 1111

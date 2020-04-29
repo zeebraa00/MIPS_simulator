@@ -402,7 +402,10 @@ def operate(i) :
                 for i in range(len(temp)) :
                     temp_str+=str(temp[i])
                 ttemp=int(temp_str,2)+1
-                registers[rd]=hex(ttemp)
+                tp=hex(ttemp)
+                remain=10-len(tp)
+                tp=tp[:2]+remain*"0"+tp[2:]
+                registers[rd]=tp
 
         elif (op=="subu") :
             compute=preprocess(rs)-preprocess(rt)
@@ -425,7 +428,11 @@ def operate(i) :
                 for i in range(len(temp)) :
                     temp_str+=str(temp[i])
                 ttemp=int(temp_str,2)+1
-                registers[rd]=hex(ttemp)
+                tp=hex(ttemp)
+                remain=10-len(tp)
+                tp=tp[:2]+remain*"0"+tp[2:]
+                registers[rd]=tp
+
         elif (op=="xor") :
             compute=bitwise_xor(rs,rt)
             registers[rd]=compute
