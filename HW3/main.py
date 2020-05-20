@@ -33,7 +33,9 @@ def init() :
 
 def pc_reg() :
     # update pc register
-    registers[34]=dec_to_hex(hex_to_dec(registers[34])+4)
+    registers[34]=hex(int(registers[34],0)+4)
+    remain=10-len(registers[34])
+    registers[34]=registers[34][:2]+remain*"0"+registers[34][2:]
 
 def two_complement(binray_input) :
     # give two's complement of binary input
@@ -223,7 +225,7 @@ def sll(n1, shamt) :
     return output
 
 def sllv(n1, n2) :
-    shamt=bin_to_dec("0b"+hex_to_bin(registers[n2])[-4:]) ## bug fix
+    shamt=hex_to_dec("0x"+registers[n2][-4:],0)
     binary_register=hex_to_bin(registers[n1])
     temp=binary_register[2:]+"0"*shamt
     over=len(temp)-32
@@ -240,7 +242,7 @@ def srl(n1, shamt) :
     return output
 
 def srlv(n1, n2) :
-    shamt=bin_to_dec("0b"+hex_to_bin(registers[n2])[-4:],0)  ## bug fix
+    shamt=int("0x"+registers[n2][-4:],0)
     binary_register=hex_to_bin(registers[n1])
     temp="0"*shamt+binary_register[2:]
     over=len(temp)-32
@@ -258,7 +260,7 @@ def sra(n1, shamt) :
     return output
 
 def srav(n1, n2) :
-    shamt=bin_to_dec("0b"+hex_to_bin(registers[n2])[-4:],0) ## bug fix
+    shamt=int("0x"+registers[n2][-4:],0)
     binary_register=hex_to_bin(registers[n1])
     MSB=str(binary_register[2])  
     temp=MSB*shamt+binary_register[2:]
@@ -565,7 +567,7 @@ def convert_to_MIPS(agree) :
                 op="slt"
                 mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rs)+", $"+str(rt)
             elif funct==43 :
-                op="sltu"
+                op="sltv"
                 mips_code=str(arr2[i])+" "+op+" $"+str(rd)+", $"+str(rs)+", $"+str(rt)
             elif funct==24 :
                 op="mult"
