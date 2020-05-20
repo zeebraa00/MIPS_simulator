@@ -202,7 +202,7 @@ def bitwise_xori(n1,imm) :
     if (imm>=0) :
         t2=dec_to_bin(imm)
     else :
-        t2=two_complement(dec_to_bin(-imm))
+        t2=bin_to_full(two_complement_half(dec_to_bin(-imm))) ## bug fix
     output="0b"
     for i in range(2,34) :
         if (t1[i]=="1" and t2[i]=="0") :
