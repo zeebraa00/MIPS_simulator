@@ -266,7 +266,7 @@ def operate(i) :
 
     pc_reg()
     if (len(arr4)<=i) :
-        print("unknown instruction1")
+        print("unknown instruction")
         is_exit=1
         return
 
@@ -339,7 +339,7 @@ def operate(i) :
             compute=bitwise_xor(rs,rt)
             registers[rd]=compute
         else :
-            print("unknown instruction2")
+            print("unknown instruction")
             is_exit=1
             return
         
@@ -355,7 +355,7 @@ def operate(i) :
             rt=int(temp_arr[3])
             shamt=int(temp_arr[4])
         else :
-            print("unknown instruction3")
+            print("unknown instruction")
             is_exit=1
             return
 
@@ -451,11 +451,11 @@ def operate(i) :
             registers[rt]=compute
 
         else :
-            print("unknown instruction4")
+            print("unknown instruction")
             is_exit=1
             return
     else :
-        print("unknown instruction5")
+        print("unknown instruction")
         is_exit=1
         return
 
@@ -613,7 +613,7 @@ def convert_to_MIPS(agree) :
                 op="syscall"
                 mips_code=str(arr2[i])+" "+op
             else :
-                mips_code=str(arr2[i])+" unknown instruction6"
+                mips_code=str(arr2[i])+" unknown instruction"
             
         elif ((opcode==2)or(opcode==3)) : # J type instructions
             pseudo_address=int(arr1[i][6:],2)
@@ -702,7 +702,7 @@ def convert_to_MIPS(agree) :
                 mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", "+str(imm)
                 lui_arr.append(arr2[i][4:])
             else :
-                mips_code=str(arr2[i])+" unknown instruction7"
+                mips_code=str(arr2[i])+" unknown instruction"
         if (agree==1) :
             print("inst %d: %s" % (i, mips_code))
         elif (agree==0) :
