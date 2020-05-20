@@ -111,12 +111,6 @@ def hex_to_dec(hex_input) :
     # hex input : 0x0...00 type
     return int(hex_input,0)
 
-def preprocess(reg_num) : # reg_num : rs, rt, rd etc
-    # hex string to integer
-    step1=registers[reg_num]
-    step2=int(step1, 0)
-    return step2
-
 def bitwise_and(n1,n2) :
     t1=hex_to_bin(registers[n1])
     t2=hex_to_bin(registers[n2])
