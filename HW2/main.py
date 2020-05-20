@@ -234,7 +234,7 @@ def srl(n1, shamt) :
     return output
 
 def srlv(n1, n2) :
-    shamt=bin_to_dec("0b"+hex_to_bin(registers[n2])[-4:],0)  ## bug fix
+    shamt=bin_to_dec("0b"+hex_to_bin(registers[n2])[-4:]) ## bug fix
     binary_register=hex_to_bin(registers[n1])
     temp="0"*shamt+binary_register[2:]
     over=len(temp)-32
@@ -252,7 +252,7 @@ def sra(n1, shamt) :
     return output
 
 def srav(n1, n2) :
-    shamt=bin_to_dec("0b"+hex_to_bin(registers[n2])[-4:],0) ## bug fix
+    shamt=bin_to_dec("0b"+hex_to_bin(registers[n2])[-4:]) ## bug fix
     binary_register=hex_to_bin(registers[n1])
     MSB=str(binary_register[2])  
     temp=MSB*shamt+binary_register[2:]
