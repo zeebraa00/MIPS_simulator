@@ -1,12 +1,8 @@
 import binascii
 import sys
 
-arr1=[]
-arr2=[]
-arr3=[]
-arr4=[]
-lui_arr=[]
-lui_num=0
+arr1=[];arr2=[];arr3=[];arr4=[]
+lui_arr=[];lui_num=0
 temp_arr=[]
 is_exit=0
 
@@ -17,51 +13,91 @@ I=["addi", "addiu", "andi", "lui", "ori", "slti", "sltiu", "xori"]
 mips_code=""
 
 registers=[
-    "0x00000000", # $0
-    "0x00000000", # $1
-    "0x00000000", # $2
-    "0x00000000", # $3
-    "0x00000000", # $4
-    "0x00000000", # $5
-    "0x00000000", # $6
-    "0x00000000", # $7
-    "0x00000000", # $8
-    "0x00000000", # $9
-    "0x00000000", # $10
-    "0x00000000", # $11
-    "0x00000000", # $12
-    "0x00000000", # $13
-    "0x00000000", # $14
-    "0x00000000", # $15
-    "0x00000000", # $16
-    "0x00000000", # $17
-    "0x00000000", # $18
-    "0x00000000", # $19
-    "0x00000000", # $20
-    "0x00000000", # $21
-    "0x00000000", # $22
-    "0x00000000", # $23
-    "0x00000000", # $24
-    "0x00000000", # $25
-    "0x00000000", # $26
-    "0x00000000", # $27
-    "0x00000000", # $28
-    "0x00000000", # $29
-    "0x00000000", # $30
-    "0x00000000", # $31
-    "0x00000000" # pc register
+    "0x00000000","0x00000000","0x00000000","0x00000000",
+    "0x00000000","0x00000000","0x00000000","0x00000000",
+    "0x00000000","0x00000000","0x00000000","0x00000000",
+    "0x00000000","0x00000000","0x00000000","0x00000000",
+    "0x00000000","0x00000000","0x00000000","0x00000000",
+    "0x00000000","0x00000000","0x00000000","0x00000000",
+    "0x00000000","0x00000000","0x00000000","0x00000000",
+    "0x00000000","0x00000000","0x00000000","0x00000000","0x00000000"
 ]
 
 instruction_memory="0x00000000"
 
-def init() : # initiate registers array
+def init() :
+    # initiate registers array to zero
     for i in range (33) :
         registers[i]="0x00000000"
 
 def pc_reg() :
+    # update pc register
     registers[32]=hex(int(registers[32],0)+4)
     remain=10-len(registers[32])
     registers[32]=registers[32][:2]+remain*"0"+registers[32][2:]
+
+def two_complement(binray_input) :
+    # give two's complement of binary input
+    step1=bin(int(binray_input,0)-1)
+    remain=34-len(step1)
+    step2="0b"+remain*"0"+step1[2:]
+    output="0b"
+    for i in range (32) :
+        if (step2[i+2]=="0") :
+            output+="1"
+        elif (step2[i+2]=="1") :
+            output+="0"
+    return output
+
+def bin_to_full(binary_input) :
+    # binary input : 0b00...000 type
+    step1=bin(int(binary_input,0))
+    remain=34-len(step1)
+    output="0b"+remain*"0"+step1[2:]
+    return output
+
+def hex_to_full(hex_input) :
+    # hex input : 0x0...00 type
+    step1=hex(int(hex_input,0))
+    remain=10-len(step1)
+    output="0x"+remain*"0"+step1[2:]
+    return output
+
+def bin_to_dec(binary_input) :
+    # binary input : 0b00...000 type
+    return int(binary_input,0)
+
+def bin_to_hex(binary_input) :
+    # binary input : 0b00...000 type
+    step1=hex(int(binary_input,0))
+    remain=10-len(step1)
+    output="0x"+remain*"0"+step1[2:]
+    return output
+
+def dec_to_bin(dec_input) :
+    # dec input : integer type
+    step1=bin(int(dec_input))
+    remain=34-len(step1)
+    output="0b"+remain*"0"+step1[2:]
+    return output
+
+def dec_to_hex(dec_input) :
+    # dec input : integer type
+    step1=hex(int(dec_input))
+    remain=10-len(step1)
+    output="0x"+remain*"0"+step1[2:]
+    return output
+
+def hex_to_bin(hex_input) :
+    # hex input : 0x0...00 type
+    step1=bin(int(hex_input,0))
+    remain=34-len(step1)
+    output="0b"+remain*"0"+step1[2:]
+    return output
+
+def hex_to_dec(hex_input) :
+    # hex input : 0x0...00 type
+    return int(hex_input,0)
 
 def preprocess(reg_num) : # reg_num : rs, rt, rd etc
     # hex string to integer
@@ -70,21 +106,15 @@ def preprocess(reg_num) : # reg_num : rs, rt, rd etc
     return step2
 
 def bitwise_and(n1,n2) :
-    t1=bin(int(registers[n1],0))
-    t2=bin(int(registers[n2],0)) #### 
-    remain1=34-len(t1)
-    remain2=34-len(t2)
-    t1=t1[:2]+remain1*"0"+t1[2:]
-    t2=t2[:2]+remain2*"0"+t2[2:]
+    t1=hex_to_bin(registers[n1])
+    t2=hex_to_bin(registers[n2])
     output="0b"
     for i in range(2,34) :
         if (t1[i]=="1" and t2[i]=="1") :
             output+="1"
         else :
             output+="0"
-    goal=hex(int(output,0))
-    remain=10-len(goal)
-    goal=goal[:2]+remain*"0"+goal[2:]
+    goal=bin_to_hex(output)
     return goal
 
 def bitwise_andi(n1,imm) :
@@ -313,7 +343,7 @@ def operate(i) :
     global is_exit
     pc_reg()
     if (len(arr4)<=i) :
-        print("unknown instruction")
+        print("unknown instruction1")
         is_exit=1
         return
     temp=arr4[i].replace(",","")
@@ -437,7 +467,7 @@ def operate(i) :
             compute=bitwise_xor(rs,rt)
             registers[rd]=compute
         else :
-            print("unknown instruction")
+            print("unknown instruction2")
             is_exit=1
             return
         
@@ -453,7 +483,7 @@ def operate(i) :
             rt=int(temp_arr[3])
             shamt=int(temp_arr[4])
         else :
-            print("unknown instruction")
+            print("unknown instruction3")
             is_exit=1
             return
 
@@ -622,11 +652,11 @@ def operate(i) :
             compute=bitwise_xori(rs,imm)
             registers[rt]=compute
         else :
-            print("unknown instruction")
+            print("unknown instruction4")
             is_exit=1
             return
     else :
-        print("unknown instruction")
+        print("unknown instruction5")
         is_exit=1
         return
 
@@ -778,7 +808,7 @@ def convert_to_MIPS(agree) :
                 op="syscall"
                 mips_code=str(arr2[i])+" "+op
             else :
-                mips_code=str(arr2[i])+" unknown instruction"
+                mips_code=str(arr2[i])+" unknown instruction6"
             
         elif ((opcode==2)or(opcode==3)) : # J type instructions
             pseudo_address=int(arr1[i][6:],2)
@@ -867,7 +897,7 @@ def convert_to_MIPS(agree) :
                 mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", "+str(imm)
                 lui_arr.append(arr2[i][4:])
             else :
-                mips_code=str(arr2[i])+" unknown instruction"
+                mips_code=str(arr2[i])+" unknown instruction7"
         if (agree==1) :
             print("inst %d: %s" % (i, mips_code))
         elif (agree==0) :

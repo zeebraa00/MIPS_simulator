@@ -1,0 +1,5 @@
+inst 0: 3c018000 lui $1, -32768
+inst 1: 3c027fff lui $2, 32767
+inst 2: 3442ffff ori $2, $2, -1
+inst 3: 0022182a slt $3, $1, $2
+inst 4: 0022202b sltv $4, $1, $2

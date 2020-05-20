@@ -1,57 +1,94 @@
-num="0x10101010"
-output=""
-for i in range(2,10) :
-    if(num[i]=="1") :
-        output+="1"
+def bin_to_full(binary_input) :
+    # binary input : 0b00...000 type
+    step1=bin(int(binary_input,0))
+    remain=34-len(step1)
+    output="0b"+remain*"0"+step1[2:]
+    return output
+
+def hex_to_full(hex_input) :
+    # hex input : 0x0...00 type
+    step1=hex(int(hex_input,0))
+    remain=10-len(step1)
+    output="0x"+remain*"0"+step1[2:]
+    return output
+
+def bin_to_dec(binary_input) :
+    # binary input : 0b00...000 type
+    return int(binary_input,0)
+
+def bin_to_hex(binary_input) :
+    # binary input : 0b00...000 type
+    step1=hex(int(binary_input,0))
+    remain=10-len(step1)
+    output="0x"+remain*"0"+step1[2:]
+    return output
+
+def dec_to_bin(dec_input) :
+    # dec input : integer type
+    step1=bin(int(dec_input))
+    remain=34-len(step1)
+    output="0b"+remain*"0"+step1[2:]
+    return output
+
+def dec_to_hex(dec_input) :
+    # dec input : integer type
+    step1=hex(int(dec_input))
+    remain=10-len(step1)
+    output="0x"+remain*"0"+step1[2:]
+    return output
+
+def hex_to_bin(hex_input) :
+    # hex input : 0x0...00 type
+    step1=bin(int(hex_input,0))
+    remain=34-len(step1)
+    output="0b"+remain*"0"+step1[2:]
+    return output
+
+def hex_to_dec(hex_input) :
+    # hex input : 0x0...00 type
+    return int(hex_input,0)
+
+def two_complement(binray_input) :
+    step1=bin(int(binray_input,0)-1)
+    remain=34-len(step1)
+    step2="0b"+remain*"0"+step1[2:]
+    output="0b"
+    for i in range (32) :
+        if (step2[i+2]=="0") :
+            output+="1"
+        elif (step2[i+2]=="1") :
+            output+="0"
+    return output
+
+
+while True :
+    a=str(input("1,2,3,4,5,6,7,8,9 : "))
+    if (a=="1") :
+        b=str(input("bin : "))
+        print(bin_to_full(b))
+    elif (a=="2") :
+        b=str(input("hex : "))
+        print(hex_to_full(b))  
+    elif (a=="3") :
+        b=str(input("bin : "))
+        print(bin_to_dec(b))
+    elif (a=="4") :
+        b=str(input("bin : "))
+        print(bin_to_hex(b))
+    elif (a=="5") :
+        b=str(input("dec : "))
+        print(dec_to_bin(b))
+    elif (a=="6") :
+        b=str(input("dec : "))
+        print(dec_to_hex(b))
+    elif (a=="7") :
+        b=str(input("hex : "))
+        print(hex_to_bin(b))
+    elif (a=="8") :
+        b=str(input("hex : "))
+        print(hex_to_dec(b))
+    elif (a=="9") :
+        b=str(input("bin : "))
+        print(two_complement(b))
     else :
-        output+="0"
-
-print(output)
-
-
-
-temp_imm=hex(12412312312)
-print(temp_imm)
-print(temp_imm[:4])
-
-arr="1000011101100101"
-
-if (arr[1]=="0") :
-    print("yes")
-
-# rs=int(arr1[i][6:11],2)
-# rt=int(arr1[i][11:16],2)
-# if arr1[i][16]=="1" :
-#     imm=int(arr1[i][16:],2)-1
-#     bin_imm1=bin(imm)[2:]
-#     bin_imm=bin_imm1.zfill(16)
-#     arr3=[]
-#     str1=""
-#     for j in range (len(bin_imm)) :
-#         if int(bin_imm[j])==1 :
-#             arr3.extend([0])
-#         else :
-#             arr3.extend([1])
-#     for j in range (len(arr3)) :
-#         str1 += str(arr3[j])
-#     output="-"+str(int(str1,2))
-#     imm=int(output)
-
-
-arr="0x00000010"
-barr=bin(int(arr,0))
-print(arr[-4:])
-
-
- 00001 01001 100000
-
-
-
-1111 1111 1111 1111 1111 1111 1111 111
-
-
-0b 1111 1111 1111 1111 1111 1111 1111 1111
-
-
-0b 1000 0000 0000 0000 0000 0000 0000 0000
-0b 1111 1111 1111 1111 1111 1111 1111 111
+        print("wrong")
