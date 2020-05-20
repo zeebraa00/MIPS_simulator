@@ -49,6 +49,19 @@ def two_complement(binray_input) :
             output+="0"
     return output
 
+def two_complement_half(binray_input) :
+    # give two's complement of binary input
+    step1=bin(int(binray_input,0)-1)
+    remain=18-len(step1)
+    step2="0b"+remain*"0"+step1[2:]
+    output="0b"
+    for i in range (16) :
+        if (step2[i+2]=="0") :
+            output+="1"
+        elif (step2[i+2]=="1") :
+            output+="0"
+    return output
+
 def bin_to_full(binary_input) :
     # binary input : 0b00...000 type
     step1=bin(int(binary_input,0))
@@ -118,114 +131,62 @@ def bitwise_and(n1,n2) :
     return goal
 
 def bitwise_andi(n1,imm) :
-    t1=bin(int(registers[n1],0))
+    t1=hex_to_bin(registers[n1])
     if (imm>=0) :
-        t2=bin(imm)
+        t2=dec_to_bin(imm)
     else :
-        num=bin(-imm)
-        remain=34-len(num)
-        num=num[:2]+"0"*remain+num[2:] # zero extend
-        temp=[]
-        temp_str=""
-        for i in range(2,34) :
-            if (num[i]=="1") :
-                temp.extend([0]) 
-            elif (num[i]=="0") :
-                temp.extend([1])
-        for i in range(len(temp)) :
-            temp_str+=str(temp[i])
-        t2=bin(int(temp_str,2)+1)
-    remain1=34-len(t1)
-    remain2=34-len(t2)
-    t1=t1[:2]+remain1*"0"+t1[2:] # zero extend
-    t2=t2[:2]+remain2*"0"+t2[2:] # zero extend
+        t2=two_complement(dec_to_bin(-imm))
     output="0b"
     for i in range(2,34) :
         if (t1[i]=="1" and t2[i]=="1") :
             output+="1"
         else :
             output+="0"
-    goal=hex(int(output,0))
-    remain=10-len(goal)
-    goal=goal[:2]+remain*"0"+goal[2:]
+    goal=bin_to_hex(output)
     return goal
 
 def bitwise_nor(n1,n2) :
-    t1=bin(int(registers[n1],0))
-    t2=bin(int(registers[n2],0))
-    remain1=34-len(t1)
-    remain2=34-len(t2)
-    t1=t1[:2]+remain1*"0"+t1[2:]
-    t2=t2[:2]+remain2*"0"+t2[2:]
+    t1=hex_to_bin(registers[n1])
+    t2=hex_to_bin(registers[n2])
     output="0b"
     for i in range(2,34) :
         if (t1[i]=="0" and t2[i]=="0") :
             output+="1"
         else :
             output+="0"
-    goal=hex(int(output,0))
-    remain=10-len(goal)
-    goal=goal[:2]+remain*"0"+goal[2:]
+    goal=bin_to_hex(output)
     return goal
 
 def bitwise_or(n1,n2) :
-    t1=bin(int(registers[n1],0))
-    t2=bin(int(registers[n2],0))
-    remain1=34-len(t1)
-    remain2=34-len(t2)
-    t1=t1[:2]+remain1*"0"+t1[2:]
-    t2=t2[:2]+remain2*"0"+t2[2:]
+    t1=hex_to_bin(registers[n1])
+    t2=hex_to_bin(registers[n2])
     output="0b"
     for i in range(2,34) :
         if (t1[i]=="1" or t2[i]=="1") :
             output+="1"
         else :
             output+="0"
-    goal=hex(int(output,0))
-    remain=10-len(goal)
-    goal=goal[:2]+remain*"0"+goal[2:]
+    goal=bin_to_hex(output)
     return goal
 
 def bitwise_ori(n1,imm) :
-    t1=bin(int(registers[n1],0))
+    t1=hex_to_bin(registers[n1])
     if (imm>=0) :
-        t2=bin(imm)
+        t2=dec_to_bin(imm)
     else :
-        num=bin(-imm)
-        remain=18-len(num)
-        num=num[:2]+"0"*remain+num[2:] # zero extend
-        temp=[]
-        temp_str=""
-        for i in range(2,18) :
-            if (num[i]=="1") :
-                temp.extend([0]) 
-            elif (num[i]=="0") :
-                temp.extend([1])
-        for i in range(len(temp)) :
-            temp_str+=str(temp[i])
-        t2=bin(int(temp_str,2)+1)
-    remain1=34-len(t1)
-    remain2=34-len(t2)
-    t1=t1[:2]+remain1*"0"+t1[2:] # zero extend
-    t2=t2[:2]+remain2*"0"+t2[2:] # zero extend
+        t2=bin_to_full(two_complement_half(bin(-imm)))
     output="0b"
     for i in range(2,34) :
         if (t1[i]=="1" or t2[i]=="1") :
             output+="1"
         else :
             output+="0"
-    goal=hex(int(output,0))
-    remain=10-len(goal)
-    goal=goal[:2]+remain*"0"+goal[2:]
+    goal=bin_to_hex(output)
     return goal
 
 def bitwise_xor(n1,n2) :
-    t1=bin(int(registers[n1],0))
-    t2=bin(int(registers[n2],0))
-    remain1=34-len(t1)
-    remain2=34-len(t2)
-    t1=t1[:2]+remain1*"0"+t1[2:]
-    t2=t2[:2]+remain2*"0"+t2[2:]
+    t1=hex_to_bin(registers[n1])
+    t2=hex_to_bin(registers[n2])
     output="0b"
     for i in range(2,34) :
         if (t1[i]=="1" and t2[i]=="0") :
@@ -234,33 +195,15 @@ def bitwise_xor(n1,n2) :
             output+="1"
         else :
             output+="0"
-    goal=hex(int(output,0))
-    remain=10-len(goal)
-    goal=goal[:2]+remain*"0"+goal[2:]
+    goal=bin_to_hex(output)
     return goal
 
 def bitwise_xori(n1,imm) :
-    t1=bin(int(registers[n1],0))
+    t1=hex_to_bin(registers[n1])
     if (imm>=0) :
-        t2=bin(imm)
+        t2=dec_to_bin(imm)
     else :
-        num=bin(-imm)
-        remain=34-len(num)
-        num=num[:2]+"0"*remain+num[2:] # zero extend
-        temp=[]
-        temp_str=""
-        for i in range(2,34) :
-            if (num[i]=="1") :
-                temp.extend([0]) 
-            elif (num[i]=="0") :
-                temp.extend([1])
-        for i in range(len(temp)) :
-            temp_str+=str(temp[i])
-        t2=bin(int(temp_str,2)+1)
-    remain1=34-len(t1)
-    remain2=34-len(t2)
-    t1=t1[:2]+remain1*"0"+t1[2:] # zero extend
-    t2=t2[:2]+remain2*"0"+t2[2:] # zero extend
+        t2=two_complement(dec_to_bin(-imm))
     output="0b"
     for i in range(2,34) :
         if (t1[i]=="1" and t2[i]=="0") :
@@ -269,102 +212,88 @@ def bitwise_xori(n1,imm) :
             output+="1"
         else :
             output+="0"
-    goal=hex(int(output,0))
-    remain=10-len(goal)
-    goal=goal[:2]+remain*"0"+goal[2:]
+    goal=bin_to_hex(output)
     return goal
 
 def sll(n1, shamt) :
-    binary_register=(bin(int(registers[n1],0)))
+    binary_register=hex_to_bin(registers[n1])
     temp=binary_register[2:]+"0"*shamt
     over=len(temp)-32
     output="0b"+temp[over:]
-    output=hex(int(output,0))
-    remain=10-len(output)
-    output=output[:2]+remain*"0"+output[2:]
+    output=bin_to_hex(output)
     return output
 
 def sllv(n1, n2) :
-    shamt=int("0x"+registers[n2][-4:],0)
-    binary_register=(bin(int(registers[n1],0)))
+    shamt=hex_to_dec("0x"+registers[n2][-4:],0)
+    binary_register=hex_to_bin(registers[n1])
     temp=binary_register[2:]+"0"*shamt
     over=len(temp)-32
     output="0b"+temp[over:]
-    output=hex(int(output,0))
-    remain=10-len(output)
-    output=output[:2]+remain*"0"+output[2:]
+    output=bin_to_hex(output)
     return output
 
 def srl(n1, shamt) :
-    binary_register=(bin(int(registers[n1],0)))
+    binary_register=hex_to_bin(registers[n1])
     temp="0"*shamt+binary_register[2:]
     over=len(temp)-32
     output="0b"+temp[:32]
-    output=hex(int(output,0))
-    remain=10-len(output)
-    output=output[:2]+remain*"0"+output[2:]
+    output=bin_to_hex(output)
     return output
 
 def srlv(n1, n2) :
     shamt=int("0x"+registers[n2][-4:],0)
-    binary_register=(bin(int(registers[n1],0)))
+    binary_register=hex_to_bin(registers[n1])
     temp="0"*shamt+binary_register[2:]
     over=len(temp)-32
     output="0b"+temp[:32]
-    output=hex(int(output,0))
-    remain=10-len(output)
-    output=output[:2]+remain*"0"+output[2:]
+    output=bin_to_hex(output)
     return output
 
 def sra(n1, shamt) :
-    binary_register=(bin(int(registers[n1],0)))
+    binary_register=hex_to_bin(registers[n1])
     MSB=str(binary_register[2])
     temp=MSB*shamt+binary_register[2:]
     over=len(temp)-32
     output="0b"+temp[:32]
-    output=hex(int(output,0))
-    remain=10-len(output)
-    output=output[:2]+remain*"0"+output[2:]
+    output=bin_to_hex(output)
     return output
 
 def srav(n1, n2) :
     shamt=int("0x"+registers[n2][-4:],0)
-    binary_register=(bin(int(registers[n1],0)))
+    binary_register=hex_to_bin(registers[n1])
     MSB=str(binary_register[2])  
     temp=MSB*shamt+binary_register[2:]
     over=len(temp)-32
     output="0b"+temp[:32]
-    output=hex(int(output,0))
-    remain=10-len(output)
-    output=output[:2]+remain*"0"+output[2:]
+    output=bin_to_hex(output)
     return output
 
 def operate(i) :
     global is_exit
+
     pc_reg()
     if (len(arr4)<=i) :
         print("unknown instruction1")
         is_exit=1
         return
+
     temp=arr4[i].replace(",","")
     temp=temp.replace("$","")
     temp_arr=temp.split()
+
     if (temp_arr[1] in R) :
         op=temp_arr[1]
         rd=int(temp_arr[2])
         rs=int(temp_arr[3])
         rt=int(temp_arr[4])
+    
         if (op=="add") :
-            compute=preprocess(rs)+preprocess(rt)
-            compute=hex(compute)
-            remain=10-len(compute)
-            compute=compute[:2]+remain*"0"+compute[2:]
+            compute=hex_to_dec(registers[rs])+hex_to_dec(registers[rt])
+            compute=dec_to_hex(compute)
             registers[rd]=compute
         elif (op=="addu") :
-            compute=preprocess(rs)+preprocess(rt)
-            compute=hex(compute)
-            remain=10-len(compute)
-            compute=compute[:2]+remain*"0"+compute[2:]
+            compute=hex_to_dec(registers[rs])+hex_to_dec(registers[rt])
+            compute=dec_to_hex(compute)
             registers[rd]=compute
         elif (op=="and") :
             compute=bitwise_and(rs,rt)
@@ -376,92 +305,42 @@ def operate(i) :
             compute=bitwise_or(rs,rt)
             registers[rd]=compute
         elif (op=="slt") :
-            tmp1=bin(int(registers[rs],0))
-            tmp2=bin(int(registers[rt],0))
-            remain1=34-len(tmp1)
-            remain2=34-len(tmp2)
-            tmp1=tmp1[:2]+remain1*"0"+tmp1[2:]
-            tmp2=tmp2[:2]+remain2*"0"+tmp2[2:]
-            str1="0b"
-            str2="0b"
+            tmp1=hex_to_bin(registers[rs])
+            tmp2=hex_to_bin(registers[rt])
+
             if (tmp1[2]=="1" and tmp2[2]=="1") : # both are negative
-                bin(int(tmp1,0)-1)
-                for i in range(2,34) :
-                    if (tmp1[i]=="1") :
-                        str1+="0"
-                    elif (tmp1[i]=="0") :
-                        str1+="1"
-                bin(int(tmp2,0)-1)
-                for i in range(2,34) :
-                    if (tmp2[i]=="1") :
-                        str2+="0"
-                    elif (tmp2[i]=="0") :
-                        str2+="1"
-                compute=("0x00000001" if ( int(str2,0)<int(str1,0)) else "0x00000000")
+                str1=two_complement(tmp1)
+                str2=two_complement(tmp2)
+                compute=("0x00000001" if ( bin_to_dec(str2) < bin_to_dec(str1) ) else "0x00000000")
             elif (tmp1[2]=="1" and tmp2[2]=="0") : # rs is negative
                 compute="0x00000001"
             elif (tmp1[2]=="0" and tmp2[2]=="1") : # rt is negative
                 compute="0x00000000"
             else : # both are positive
-                compute=("0x00000001" if ( int(registers[rs],0)<int(registers[rt],0)) else "0x00000000")
+                compute=("0x00000001" if ( hex_to_dec(registers[rs]) < hex_to_dec(registers[rt]) ) else "0x00000000")
+            
             registers[rd]=compute
         elif (op=="sltu") :
-
-            ###########################
-            compute=("0x00000001" if ( int(registers[rs],0)<int(registers[rt],0)) else "0x00000000")
+            compute=("0x00000001" if ( hex_to_dec(registers[rs]) < hex_to_dec(registers[rt]) ) else "0x00000000")
             registers[rd]=compute
 
         elif (op=="sub") :
-            compute=preprocess(rs)-preprocess(rt)
+            compute=hex_to_dec(registers[rs])-hex_to_dec(registers[rt])
             if (compute>=0) :
-                compute=hex(compute)
-                remain=10-len(compute)
-                compute=compute[:2]+remain*"0"+compute[2:]
+                compute=dec_to_hex(compute)
                 registers[rd]=compute
             else :
-                num=bin(-compute)
-                remain=34-len(num)
-                num=num[:2]+"0"*remain+num[2:]
-                temp=[]
-                temp_str=""
-                for i in range(2,34) :
-                    if (num[i]=="1") :
-                        temp.extend([0]) 
-                    elif (num[i]=="0") :
-                        temp.extend([1])
-                for i in range(len(temp)) :
-                    temp_str+=str(temp[i])
-                ttemp=int(temp_str,2)+1
-                tp=hex(ttemp)
-                remain=10-len(tp)
-                tp=tp[:2]+remain*"0"+tp[2:]
-                registers[rd]=tp
+                compute=bin_to_hex(two_complement(dec_to_bin(-compute)))
+                registers[rd]=compute
 
         elif (op=="subu") :
-            compute=preprocess(rs)-preprocess(rt)
+            compute=hex_to_dec(registers[rs])-hex_to_dec(registers[rt])
             if (compute>=0) :
-                compute=hex(compute)
-                remain=10-len(compute)
-                compute=compute[:2]+remain*"0"+compute[2:]
+                compute=dec_to_hex(compute)
                 registers[rd]=compute
             else :
-                num=bin(-compute)
-                remain=34-len(num)
-                num=num[:2]+"0"*remain+num[2:]
-                temp=[]
-                temp_str=""
-                for i in range(2,34) :
-                    if (num[i]=="1") :
-                        temp.extend([0]) 
-                    elif (num[i]=="0") :
-                        temp.extend([1])
-                for i in range(len(temp)) :
-                    temp_str+=str(temp[i])
-                ttemp=int(temp_str,2)+1
-                tp=hex(ttemp)
-                remain=10-len(tp)
-                tp=tp[:2]+remain*"0"+tp[2:]
-                registers[rd]=tp
+                compute=bin_to_hex(two_complement(dec_to_bin(-compute)))
+                registers[rd]=compute
 
         elif (op=="xor") :
             compute=bitwise_xor(rs,rt)
@@ -516,50 +395,23 @@ def operate(i) :
             rt=int(temp_arr[2])
             rs=int(temp_arr[3])
             imm=int(temp_arr[4])
+
         if (op=="addi") :
-            compute=preprocess(rs)+imm
+            compute=hex_to_dec(registers[rs])+imm
             #####
             if (compute<0) :
-                num=bin(-compute)
-                remain=34-len(num)
-                num=num[:2]+"0"*remain+num[2:]
-                temp=[]
-                temp_str=""
-                for i in range(2,34) :
-                    if (num[i]=="1") :
-                        temp.extend([0]) 
-                    elif (num[i]=="0") :
-                        temp.extend([1])
-                for i in range(len(temp)) :
-                    temp_str+=str(temp[i])
-                ttemp=int(temp_str,2)+1
-                registers[rt]=hex(ttemp)
+                temp=bin_to_hex(two_complement(dec_to_bin(-compute)))
+                registers[rt]=temp
             else :
-                compute=hex(compute)
-                remain=10-len(compute)
-                compute=compute[:2]+remain*"0"+compute[2:]
+                compute=dec_to_hex(compute)
                 registers[rt]=compute
         elif (op=="addiu") :
-            compute=preprocess(rs)+imm
+            compute=hex_to_dec(registers[rs])+imm
             if (compute<0) :
-                num=bin(-compute)
-                remain=34-len(num)
-                num=num[:2]+"0"*remain+num[2:]
-                temp=[]
-                temp_str=""
-                for i in range(2,34) :
-                    if (num[i]=="1") :
-                        temp.extend([0]) 
-                    elif (num[i]=="0") :
-                        temp.extend([1])
-                for i in range(len(temp)) :
-                    temp_str+=str(temp[i])
-                ttemp=int(temp_str,2)+1
-                registers[rt]=hex(ttemp)
+                temp=bin_to_hex(two_complement(dec_to_bin(-compute)))
+                registers[rt]=temp
             else :
-                compute=hex(compute)
-                remain=10-len(compute)
-                compute=compute[:2]+remain*"0"+compute[2:]
+                compute=dec_to_hex(compute)
                 registers[rt]=compute
         elif (op=="andi") :
             compute=bitwise_andi(rs,imm)
@@ -575,82 +427,36 @@ def operate(i) :
             compute=bitwise_ori(rs,imm)
             registers[rt]=compute
         elif (op=="slti") :
-            tmp1=bin(int(registers[rs],0))
+            tmp1=hex_to_bin(registers[rs])
             if (imm>=0) :
-                tmp2=bin(imm)
+                tmp2=dec_to_bin(imm)
             else :
-                num=bin(-imm)
-                remain=34-len(num)
-                num=num[:2]+"0"*remain+num[2:] # zero extend
-                temp=[]
-                temp_str=""
-                for i in range(2,34) :
-                    if (num[i]=="1") :
-                        temp.extend([0]) 
-                    elif (num[i]=="0") :
-                        temp.extend([1])
-                for i in range(len(temp)) :
-                    temp_str+=str(temp[i])
-                tmp2=bin(int(temp_str,2)+1)
-            remain1=34-len(tmp1)
-            remain2=34-len(tmp2)
-            tmp1=tmp1[:2]+remain1*"0"+tmp1[2:]
-            tmp2=tmp2[:2]+remain2*"0"+tmp2[2:]
-            str1="0b"
-            str2="0b"
+                tmp2=two_complement(dec_to_bin(-imm))
             if (tmp1[2]=="1" and tmp2[2]=="1") : # both are negative
-                tmp1=bin(int(tmp1,0)-1)
-                for i in range(2,34) :
-                    if (tmp1[i]=="1") :
-                        str1+="0"
-                    elif (tmp1[i]=="0") :
-                        str1+="1"
-                tmp2=bin(int(tmp2,0)-1)
-                for i in range(2,34) :
-                    if (tmp2[i]=="1") :
-                        str2+="0"
-                    elif (tmp2[i]=="0") :
-                        str2+="1"
-                compute=("0x00000001" if ( int(str2,0)<int(str1,0)) else "0x00000000")
+                tmp1=bin_to_dec(two_complement(tmp1))
+                tmp2=bin_to_dec(two_complement(tmp2))
+                compute=("0x00000001" if ( tmp2 < tmp1 ) else "0x00000000")
             elif (tmp1[2]=="1" and tmp2[2]=="0") : # rs is negative
                 compute="0x00000001"
             elif (tmp1[2]=="0" and tmp2[2]=="1") : # imm is negative
                 compute="0x00000000"
             else : # both are positive
-                compute=("0x00000001" if ( int(registers[rs],0)<imm) else "0x00000000")
-            registers[rt]=compute #################
+                compute=("0x00000001" if ( hex_to_dec(registers[rs]) < imm ) else "0x00000000")
+            registers[rt]=compute
 
         elif (op=="sltiu") :
-            tmp1=bin(int(registers[rs],0))
+            tmp1=hex_to_dec(registers[rs])
             if (imm>=0) :
-                tmp2=bin(imm)
+                tmp2=imm
             else :
-                num=bin(-imm)
-                remain=34-len(num)
-                num=num[:2]+"0"*remain+num[2:] # zero extend
-                temp=[]
-                temp_str=""
-                for i in range(2,34) :
-                    if (num[i]=="1") :
-                        temp.extend([0]) 
-                    elif (num[i]=="0") :
-                        temp.extend([1])
-                for i in range(len(temp)) :
-                    temp_str+=str(temp[i])
-                tmp2=bin(int(temp_str,2)+1)
-            remain1=34-len(tmp1)
-            remain2=34-len(tmp2)
-            tmp1=tmp1[:2]+remain1*"0"+tmp1[2:]
-            tmp2=tmp2[:2]+remain2*"0"+tmp2[2:]
-
-            num1=int(tmp1,0)
-            num2=int(tmp2,0)+1
-            compute=("0x00000001" if ( num1<num2) else "0x00000000")
-            registers[rt]=compute ####################
+                tmp2=bin_to_dec(two_complement(dec_to_bin(-imm)))
+            compute=("0x00000001" if ( tmp1<tmp2 ) else "0x00000000")
+            registers[rt]=compute
 
         elif (op=="xori") :
             compute=bitwise_xori(rs,imm)
             registers[rt]=compute
+
         else :
             print("unknown instruction4")
             is_exit=1
@@ -660,7 +466,24 @@ def operate(i) :
         is_exit=1
         return
 
-def func2() : # command == loadinst
+def func1() :
+    # command == read
+    filename=command[5:]
+
+    try :
+        f=open(filename, "rb")
+        string=f.read()
+        num=len(string)/4
+        for i in range(num) :
+            hex=binascii.b2a_hex(string[i*4:(i+1)*4])
+            convert_to_binary(hex)
+        convert_to_MIPS(1)
+        
+    except :
+        sys.stderr.write("No file: %s\n" % filename)
+
+def func2() :
+    # command == loadinst
     filename=command[9:]
 
     try :
@@ -675,7 +498,8 @@ def func2() : # command == loadinst
     except :
         sys.stderr.write("No file: %s\n" % filename)
 
-def func3() : # command == run
+def func3() :
+    # command == run
     global is_exit
     num=int(command[4:])
     for i in range(num) :
@@ -692,25 +516,11 @@ def func3() : # command == run
             break
     print("Executed %d instructions" % (i+1)) ###??
          
-def func4() : # command == registers
+def func4() :
+    # command == registers
     for i in range(32) :
         print("$%d: %s" %(i, registers[i]))
     print("PC: %s" %(registers[32]))
-
-def func1() : # command == read
-    filename=command[5:]
-
-    try :
-        f=open(filename, "rb")
-        string=f.read()
-        num=len(string)/4
-        for i in range(num) :
-            hex=binascii.b2a_hex(string[i*4:(i+1)*4])
-            convert_to_binary(hex)
-        convert_to_MIPS(1)
-        
-    except :
-        sys.stderr.write("No file: %s\n" % filename)
 
 def convert_to_MIPS(agree) :
     # arr1 : binary code
