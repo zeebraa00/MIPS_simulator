@@ -6,11 +6,15 @@ lui_arr=[];lui_num=0
 temp_arr=[]
 is_exit=0
 
-R=["add", "addu", "and", "nor", "or", "slt", "sltu", "sub", "subu", "xor"]
-Shift=["sll", "sllv", "sra", "srav", "srl", "srlv"]
-I=["addi", "addiu", "andi", "lui", "ori", "slti", "sltiu", "xori"]
-
 mips_code=""
+
+Arithmetic=["add", "addu", "and", "nor", "or", "slt", "sltu", "sub", "subu", "xor"]
+Shifter=["sll", "sllv", "sra", "srav", "srl", "srlv"]
+Immediate=["addi", "addiu", "andi", "lui", "ori", "slti", "sltiu", "xori"]
+Multiply=["div", "divu", "mfhi", "mflo", "mthi", "mtlo", "mult", "multu"]
+Memory=["lw", "lh", "lhu", "lb", "lbu", "sw", "sh", "sb"]
+Branch=["jalr", "jr", "j", "jal", "beq", "bne"]
+SystemCall=["syscall"]
 
 registers=[
     "0x00000000","0x00000000","0x00000000","0x00000000",
@@ -24,15 +28,13 @@ registers=[
     "0x00000000","0x00000000","0x00000000"
 ]
 
-instruction_memory="0x00000000"
-
 def init() :
     # initiate registers array to zero
-    for i in range (33) :
+    for i in range (35) :
         registers[i]="0x00000000"
 
 def pc_reg() :
-    # update pc register
+    # pc register + 4
     registers[34]=dec_to_hex(hex_to_dec(registers[34])+4)
 
 def two_complement(binray_input) :
@@ -61,10 +63,30 @@ def two_complement_half(binray_input) :
             output+="0"
     return output
 
+def two_complement_64bit(binray_input) :
+    # give two's complement of binary input
+    step1=bin(int(binray_input,0)-1)
+    remain=66-len(step1)
+    step2="0b"+remain*"0"+step1[2:]
+    output="0b"
+    for i in range (64) :
+        if (step2[i+2]=="0") :
+            output+="1"
+        elif (step2[i+2]=="1") :
+            output+="0"
+    return output
+
 def bin_to_full(binary_input) :
     # binary input : 0b00...000 type
     step1=bin(int(binary_input,0))
     remain=34-len(step1)
+    output="0b"+remain*"0"+step1[2:]
+    return output
+
+def bin_to_64bit(binary_input) :
+    # binary input : 0b00...000 type
+    step1=bin(int(binary_input,0))
+    remain=66-len(step1)
     output="0b"+remain*"0"+step1[2:]
     return output
 
@@ -78,6 +100,17 @@ def hex_to_full(hex_input) :
 def bin_to_dec(binary_input) :
     # binary input : 0b00...000 type
     return int(binary_input,0)
+
+def bin_to_dec_signed(binary_input) :
+    # binary input : 0b00...000 type
+    step1=bin_to_full(binary_input)
+    if(step1[2]=="1") :
+        # negative
+        output=-bin_to_dec(two_complement(step1))
+    else :
+        #positive
+        output=bin_to_dec(step1)
+    return output
 
 def bin_to_hex(binary_input) :
     # binary input : 0b00...000 type
@@ -110,6 +143,17 @@ def hex_to_bin(hex_input) :
 def hex_to_dec(hex_input) :
     # hex input : 0x0...00 type
     return int(hex_input,0)
+
+def hex_to_dec_signed(hex_input) :
+    # hex input : 0x0...00 type
+    step1=hex_to_bin(hex_input)
+    if(step1[2]=="1") :
+        # negative
+        output=-bin_to_dec(two_complement(step1))
+    else :
+        #positive
+        output=bin_to_dec(step1)
+    return output
 
 def bitwise_and(n1,n2) :
     t1=hex_to_bin(registers[n1])
@@ -266,7 +310,7 @@ def operate(i) :
 
     pc_reg()
     if (len(arr4)<=i) :
-        print("unknown instruction1")
+        print("unknown instruction")
         is_exit=1
         return
 
@@ -274,7 +318,7 @@ def operate(i) :
     temp=temp.replace("$","")
     temp_arr=temp.split()
 
-    if (temp_arr[1] in R) :
+    if (temp_arr[1] in Arithmetic) :
         op=temp_arr[1]
         rd=int(temp_arr[2])
         rs=int(temp_arr[3])
@@ -311,8 +355,8 @@ def operate(i) :
                 compute="0x00000000"
             else : # both are positive
                 compute=("0x00000001" if ( hex_to_dec(registers[rs]) < hex_to_dec(registers[rt]) ) else "0x00000000")
-            
             registers[rd]=compute
+
         elif (op=="sltu") :
             compute=("0x00000001" if ( hex_to_dec(registers[rs]) < hex_to_dec(registers[rt]) ) else "0x00000000")
             registers[rd]=compute
@@ -339,11 +383,11 @@ def operate(i) :
             compute=bitwise_xor(rs,rt)
             registers[rd]=compute
         else :
-            print("unknown instruction2")
+            print("unknown instruction")
             is_exit=1
             return
         
-    elif (temp_arr[1] in Shift) :
+    elif (temp_arr[1] in Shifter) :
         if (temp_arr[1] in ["sllv", "srav", "srlv"]) :
             op=temp_arr[1]
             rd=int(temp_arr[2])
@@ -355,7 +399,7 @@ def operate(i) :
             rt=int(temp_arr[3])
             shamt=int(temp_arr[4])
         else :
-            print("unknown instruction3")
+            print("unknown instruction")
             is_exit=1
             return
 
@@ -378,7 +422,7 @@ def operate(i) :
             compute=srlv(rt,rs)
             registers[rd]=compute
 
-    elif (temp_arr[1] in I) :
+    elif (temp_arr[1] in Immediate) :
         if (temp_arr[1]=="lui") :
             op=temp_arr[1]
             rt=int(temp_arr[2])
@@ -391,7 +435,6 @@ def operate(i) :
 
         if (op=="addi") :
             compute=hex_to_dec(registers[rs])+imm
-            #####
             if (compute<0) :
                 temp=bin_to_hex(two_complement(dec_to_bin(-compute)))
                 registers[rt]=temp
@@ -451,11 +494,127 @@ def operate(i) :
             registers[rt]=compute
 
         else :
-            print("unknown instruction4")
+            print("unknown instruction")
             is_exit=1
             return
+
+    elif (temp_arr[1] in Multiply) :
+        if (temp_arr[1] in ["div", "divu", "mult", "multu"]) :
+            op=temp_arr[1]
+            rs=int(temp_arr[2])
+            rt=int(temp_arr[3])
+        elif (temp_arr[1] in ["mfhi", "mflo", "mthi", "mtlo"]) :
+            op=temp_arr[1]
+            rd=int(temp_arr[2])
+        else :
+            print("unknown instruction")
+            is_exit=1
+            return
+
+        if (op=="div") :
+            quotient=hex_to_dec_signed(registers[rs])/hex_to_dec_signed(registers[rt])
+            remainder=hex_to_dec_signed(registers[rs])%hex_to_dec_signed(registers[rt])
+            registers[32]=dec_to_hex(quotient)
+            registers[33]=dec_to_hex(reaminder)
+            
+        elif (op=="divu") :
+            quotient=hex_to_dec(registers[rs])/hex_to_dec(registers[rt])
+            remainder=hex_to_dec(registers[rs])%hex_to_dec(registers[rt])
+            registers[32]=dec_to_hex(quotient)
+            registers[33]=dec_to_hex(reaminder)
+
+        elif (op=="mult") :
+            step1=hex_to_dec_signed(registers[rs])*hex_to_dec_signed(registers[rt])
+            if (step1>=0) :
+                step2=bin_to_64bit(bin(step1))
+            else :
+                step2=two_complement_64bit(bin_to_64bit(bin(-step1)))
+            registers[32]=bin_to_hex("0b"+step2[2:34])
+            registers[33]=bin_to_hex("0b"+step2[34:66])
+
+        elif (op=="multu") :
+            step1=hex_to_dec(registers[rs])*hex_to_dec(registers[rt])
+            step2=bin_to_64bit(bin(step1))
+            registers[32]=bin_to_hex("0b"+step2[2:34])
+            registers[33]=bin_to_hex("0b"+step2[34:66])
+
+        elif (op=="mfhi") :
+            pass
+        elif (op=="mflo") :
+            pass
+        elif (op=="mthi") :
+            pass
+        elif (op=="mtlo") :
+            pass
+
+    elif (temp_arr[1] in Memory) :
+        op=temp_arr[1]
+        rs=int(temp_arr[2])
+        rt=int(temp_arr[3])
+        offset=int(temp_arr[4])
+        if (op=="lw") :
+            pass
+        elif (op=="lh") :
+            pass
+        elif (op=="lhu") :
+            pass
+        elif (op=="lb") :
+            pass
+        elif (op=="lbu") :
+            pass
+        elif (op=="sw") :
+            pass
+        elif (op=="sh") :
+            pass
+        elif (op=="sb") :
+            pass
+        else :
+            print("unknown instruction")
+            is_exit=1
+            return
+
+    elif (temp_arr[1] in Branch) :
+        if (temp_arr[1] in ["beq", "bne"]) :
+            op=temp_arr[1]
+            rs=int(temp_arr[2])
+            rt=int(temp_arr[3])
+            offset=int(temp_arr[4])
+        elif (temp_arr[1] in ["j", "jal"]) :
+            op=temp_arr[1]
+            target=int(temp_arr[2])
+        elif (temp_arr[1] in ["jr","jalr"]) :
+            op=temp_arr[1]
+            rs=int(temp_arr[2])
+        else :
+            print("unknown instruction")
+            is_exit=1
+            return
+        if (op=="beq") :
+            pass
+        elif (op=="bne") :
+            pass
+        elif (op=="j") :
+            pass
+        elif (op=="jal") :
+            pass
+        elif (op=="jr") :
+            pass
+        elif (op=="jalr") :
+            pass
+
+    elif (temp_arr[1] in SystemCall) :
+        check=int(hex_to_dec(registers[2]))
+        if (check==1) :
+            print(hex_to_dec(registers[4]))
+        elif (check==4)  :
+            print("registers[4] pointing string print")
+        elif (check==10)  :
+            print("EXIT SYSCALL")
+            is_exit=1
+            return
+
     else :
-        print("unknown instruction5")
+        print("unknown instruction")
         is_exit=1
         return
 
@@ -507,7 +666,7 @@ def func3() :
         else :
             operate(i)
             break
-    print("Executed %d instructions" % (i+1)) ###??
+    print("Executed %d instructions" % (i+1))
          
 def func4() :
     # command == registers
@@ -516,6 +675,10 @@ def func4() :
     print("HI: %s" %(registers[32]))
     print("LO: %s" %(registers[33]))    
     print("PC: %s" %(registers[34]))
+
+def func5() :
+    # command == loaddata
+    print("loaddata function")
 
 def convert_to_MIPS(agree) :
     # arr1 : binary code
@@ -613,7 +776,7 @@ def convert_to_MIPS(agree) :
                 op="syscall"
                 mips_code=str(arr2[i])+" "+op
             else :
-                mips_code=str(arr2[i])+" unknown instruction6"
+                mips_code=str(arr2[i])+"unknown instruction"
             
         elif ((opcode==2)or(opcode==3)) : # J type instructions
             pseudo_address=int(arr1[i][6:],2)
@@ -702,7 +865,7 @@ def convert_to_MIPS(agree) :
                 mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", "+str(imm)
                 lui_arr.append(arr2[i][4:])
             else :
-                mips_code=str(arr2[i])+" unknown instruction7"
+                mips_code=str(arr2[i])+" unknown instruction"
         if (agree==1) :
             print("inst %d: %s" % (i, mips_code))
         elif (agree==0) :
@@ -750,5 +913,7 @@ while True :
         func3()
     elif (command[0:]=="registers") :
         func4()
+    elif (command[0:8]=="loaddata") :
+        func5()
     else :
         print("wrong input")
