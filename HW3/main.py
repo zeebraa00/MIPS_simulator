@@ -1,7 +1,7 @@
 import binascii
 import sys
 
-arr1=[];arr2=[];arr3=[];arr4=[]
+arr1=[];arr2=[];arr3=[];darr1=[]
 lui_arr=[];lui_num=0
 temp_arr=[]
 is_exit=0
@@ -28,14 +28,17 @@ registers=[
     "0x00000000","0x00000000","0x00000000"
 ]
 
+instruction_memory=[]
+data_memory=[]
+
 def init() :
-    # initiate registers array to zero
+    # initiate registers array
     for i in range (35) :
         registers[i]="0x00000000"
 
-def pc_reg() :
+def program_count(i) :
     # pc register + 4
-    registers[34]=dec_to_hex(hex_to_dec(registers[34])+4)
+    registers[34]=dec_to_hex((i+1)*4)
 
 def two_complement(binray_input) :
     # give two's complement of binary input
@@ -151,7 +154,7 @@ def hex_to_dec_signed(hex_input) :
         # negative
         output=-bin_to_dec(two_complement(step1))
     else :
-        #positive
+        # positive
         output=bin_to_dec(step1)
     return output
 
@@ -308,13 +311,22 @@ def srav(n1, n2) :
 def operate(i) :
     global is_exit
 
-    pc_reg()
-    if (len(arr4)<=i) :
+    program_count(i)
+    if ( hex_to_dec_signed(registers[34]) > hex_to_dec("0x00010000") ) :
+        print("Memory address out of range: ", registers[34])
+        is_exit=1
+        return
+    elif ( hex_to_dec_signed(registers[34]) < 0 ) :
+        print("Memory address out of range: ", registers[34])
+        is_exit=1
+        return   
+
+    if (len(instruction_memory)<=i) :
         print("unknown instruction")
         is_exit=1
         return
 
-    temp=arr4[i].replace(",","")
+    temp=instruction_memory[i].replace(",","")
     temp=temp.replace("$","")
     temp_arr=temp.split()
 
@@ -328,23 +340,27 @@ def operate(i) :
             compute=hex_to_dec(registers[rs])+hex_to_dec(registers[rt])
             compute=dec_to_hex(compute)
             registers[rd]=compute
+
         elif (op=="addu") :
             compute=hex_to_dec(registers[rs])+hex_to_dec(registers[rt])
             compute=dec_to_hex(compute)
             registers[rd]=compute
+
         elif (op=="and") :
             compute=bitwise_and(rs,rt)
             registers[rd]=compute
+
         elif (op=="nor") :
             compute=bitwise_nor(rs,rt)
             registers[rd]=compute
+
         elif (op=="or") :
             compute=bitwise_or(rs,rt)
             registers[rd]=compute
+
         elif (op=="slt") :
             tmp1=hex_to_bin(registers[rs])
             tmp2=hex_to_bin(registers[rt])
-
             if (tmp1[2]=="1" and tmp2[2]=="1") : # both are negative
                 str1=two_complement(tmp1)
                 str2=two_complement(tmp2)
@@ -406,18 +422,23 @@ def operate(i) :
         if (op=="sll") :
             compute=sll(rt,shamt)
             registers[rd]=compute
+
         elif (op=="sllv") :
             compute=sllv(rt,rs)
             registers[rd]=compute
+
         elif (op=="sra") : # sign extension
             compute=sra(rt,shamt)
             registers[rd]=compute
+
         elif (op=="srav") : # sign extension
             compute=srav(rt,rs)
             registers[rd]=compute
+
         elif (op=="srl") :
             compute=srl(rt,shamt)
             registers[rd]=compute
+
         elif (op=="srlv") :
             compute=srlv(rt,rs)
             registers[rd]=compute
@@ -441,6 +462,7 @@ def operate(i) :
             else :
                 compute=dec_to_hex(compute)
                 registers[rt]=compute
+
         elif (op=="addiu") :
             compute=hex_to_dec(registers[rs])+imm
             if (compute<0) :
@@ -449,9 +471,11 @@ def operate(i) :
             else :
                 compute=dec_to_hex(compute)
                 registers[rt]=compute
+
         elif (op=="andi") :
             compute=bitwise_andi(rs,imm)
             registers[rt]=compute
+
         elif (op=="lui") :
             global lui_num
             remain=4-len(lui_arr[lui_num])
@@ -459,9 +483,11 @@ def operate(i) :
             compute="0x"+temp+"0000"
             lui_num+=1
             registers[rt]=compute
+
         elif (op=="ori") :
             compute=bitwise_ori(rs,imm)
             registers[rt]=compute
+
         elif (op=="slti") :
             tmp1=hex_to_bin(registers[rs])
             if (imm>=0) :
@@ -539,13 +565,16 @@ def operate(i) :
             registers[33]=bin_to_hex("0b"+step2[34:66])
 
         elif (op=="mfhi") :
-            pass
+            registers[rd]=registers[32]
+
         elif (op=="mflo") :
-            pass
+            registers[rd]=registers[33]
+            
         elif (op=="mthi") :
-            pass
+            registers[32]=registers[rd]
+
         elif (op=="mtlo") :
-            pass
+            registers[33]=registers[rd]
 
     elif (temp_arr[1] in Memory) :
         op=temp_arr[1]
@@ -612,6 +641,10 @@ def operate(i) :
             print("EXIT SYSCALL")
             is_exit=1
             return
+        else :
+            print("Invalid syscall")
+            is_exit=1
+            return
 
     else :
         print("unknown instruction")
@@ -645,7 +678,7 @@ def func2() :
         for i in range(num) :
             hex=binascii.b2a_hex(string[i*4:(i+1)*4])
             convert_to_binary(hex)
-        convert_to_MIPS(0)
+        convert_to_MIPS(0) # instructions saved in instruction_memory
         
     except :
         sys.stderr.write("No file: %s\n" % filename)
@@ -655,7 +688,7 @@ def func3() :
     global is_exit
     num=int(command[4:])
     for i in range(num) :
-        if (i < len(arr4)) :
+        if (i < len(instruction_memory)) :
             operate(i)
             if (is_exit==1) :
                 print("Executed %d instructions" % (i+1))
@@ -678,7 +711,30 @@ def func4() :
 
 def func5() :
     # command == loaddata
-    print("loaddata function")
+    filename=command[9:]
+
+    try :
+        f=open(filename, "rb")
+        string=f.read()
+        num=len(string)
+        for i in range(num) :
+            hex=binascii.b2a_hex(string[i:(i+1)])
+            darr1.append(hex)
+        quotient = num / 4
+        remainder = num % 4
+
+        for i in range(quotient) :
+            temp1=[]
+            for j in range(4) :
+                temp1.append(darr1[4*i+j])
+            data_memory.append(temp1)
+        temp2=[]
+        for i in range(remainder) :
+            temp2.append(darr1[quotient*4+i])
+        data_memory.append(temp2)
+
+    except :
+        sys.stderr.write("No file: %s\n" % filename)
 
 def convert_to_MIPS(agree) :
     # arr1 : binary code
@@ -869,7 +925,7 @@ def convert_to_MIPS(agree) :
         if (agree==1) :
             print("inst %d: %s" % (i, mips_code))
         elif (agree==0) :
-            arr4.append(mips_code)
+            instruction_memory.append(mips_code)
 
 def convert_to_binary(hex) :
     arr=[]
