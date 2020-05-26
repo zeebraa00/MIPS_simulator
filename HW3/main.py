@@ -311,14 +311,14 @@ def srav(n1, n2) :
 def operate(i) :
     global is_exit
 
-    if ( hex_to_dec_signed(registers[34])+4 > hex_to_dec("0x00010000") ) :
+    if ( hex_to_dec_signed(registers[34])+4 >= hex_to_dec("0x00010000") ) :
+        print("Memory address out of range: ", registers[34])
+        is_exit=1
+        
+    elif ( hex_to_dec_signed(registers[34])+4 <= 0 ) :
         print("Memory address out of range: ", registers[34])
         is_exit=1
         return
-    elif ( hex_to_dec_signed(registers[34])+4 < 0 ) :
-        print("Memory address out of range: ", registers[34])
-        is_exit=1
-        return   
 
     if (len(instruction_memory)<=i) :
         print("unknown instruction")
@@ -565,15 +565,21 @@ def operate(i) :
         if (op=="div") :
             quotient=hex_to_dec_signed(registers[rs])/hex_to_dec_signed(registers[rt])
             remainder=hex_to_dec_signed(registers[rs])%hex_to_dec_signed(registers[rt])
-            registers[32]=dec_to_hex(quotient)
-            registers[33]=dec_to_hex(reaminder)
+            if (remainder >= 0) :
+                registers[32]=dec_to_hex(remainder)
+            else :
+                registers[32]=bin_to_hex(two_complement(dec_to_bin(-remainder)))
+            if (quotient >= 0) :
+                registers[33]=dec_to_hex(quotient)
+            else :
+                registers[33]=bin_to_hex(two_complement(dec_to_bin(-quotient)))
             program_count(i)
             
         elif (op=="divu") :
             quotient=hex_to_dec(registers[rs])/hex_to_dec(registers[rt])
             remainder=hex_to_dec(registers[rs])%hex_to_dec(registers[rt])
-            registers[32]=dec_to_hex(quotient)
-            registers[33]=dec_to_hex(reaminder)
+            registers[32]=dec_to_hex(remainder)
+            registers[33]=dec_to_hex(quotient)
             program_count(i)
 
         elif (op=="mult") :
@@ -595,10 +601,12 @@ def operate(i) :
 
         elif (op=="mfhi") :
             registers[rd]=registers[32]
+            print("mfhi",registers[rd])
             program_count(i)
 
         elif (op=="mflo") :
             registers[rd]=registers[33]
+            print("mflo",registers[rd])
             program_count(i)
             
         elif (op=="mthi") :
@@ -607,9 +615,15 @@ def operate(i) :
 
         elif (op=="mtlo") :
             registers[33]=registers[rd]
+            print(registers[rd])
             program_count(i)
 
     elif (temp_arr[1] in Memory) :
+        print("="*10)
+        print(data_memory)
+        func4()
+        print("="*10)
+
         step1=temp_arr[3].replace("("," ")
         step1=step1.replace(")"," ")
         step2=step1.split()
@@ -622,39 +636,54 @@ def operate(i) :
         offset=int(temp_arr[3])
 
         if (op=="lw") :
-            registers[rt]=hex_to_full(data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)])
+            if ( 0 <= hex_to_dec(registers[rs])-268435456+(offset/4) <= 65536 ) :
+                print(hex_to_dec(registers[rs])-268435456+(offset/4))
+                registers[rt]=hex_to_full(data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)])
+            else :
+                print(hex_to_dec(registers[rs])-268435456+(offset/4))
+                is_exit=1
             program_count(i)
 
         elif (op=="lh") :
-            temp=hex_to_full(data_memory[hex_to_dec(registers[rs])-268435456+(offset/2)])[:6]
-            registers[rt]="0x"+temp[2]*4+temp[2:] # sign extend
+            temp = data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][2+2*(offset%4):6+2*(offset%4)]
+            if (temp[0] in ["8","9","a","b","c","d","e","f"]) :
+                MSB="f"
+            else :
+                MSB="0"
+            registers[rt]="0x"+MSB*4+temp # sign extend
+            # registers[rt]="0x"+temp[2]*4+temp[2:] # sign extend
             program_count(i)
 
         elif (op=="lhu") :
-            temp=hex_to_full(data_memory[hex_to_dec(registers[rs])-268435456+(offset/2)])[:6]
-            registers[rt]="0x"+"0"*4+temp[2:] # zero extend
+            temp = data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][2+2*(offset%4):6+2*(offset%4)]
+            registers[rt]="0x"+"0"*4+temp # zero extend
             program_count(i)
 
         elif (op=="lb") :
-            temp=hex_to_full(data_memory[hex_to_dec(registers[rs])-268435456+(offset)])[:4]
-            registers[rt]="0x"+temp[2]*6+temp[2:] # sign extend
+            temp = data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][2+2*(offset%4):4+2*(offset%4)]
+            if (temp[0] in ["8","9","a","b","c","d","e","f"]) :
+                MSB="f"
+            else :
+                MSB="0"
+            registers[rt]="0x"+MSB*4+temp # sign extend
+            # registers[rt]="0x"+temp[2]*4+temp[2:] # sign extend
             program_count(i)
 
         elif (op=="lbu") :
-            temp=hex_to_full(data_memory[hex_to_dec(registers[rs])-268435456+(offset)])[:4]
-            registers[rt]="0x"+"0"*6+temp[2:] # sign extend
+            temp = data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][2+2*(offset%4):4+2*(offset%4)]
+            registers[rt]="0x"+"0"*6+temp # zero extend
             program_count(i)
 
         elif (op=="sw") :
-            data_memory[hex_to_dec(registers(rs))+(offset)]=registers[rt]
+            data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)]=registers[rt]
             program_count(i)
             
         elif (op=="sh") :
-            data_memory[hex_to_dec(registers(rs))+(offset)]="0x"+"0"*4+registers[rt][6:10]
+            data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)] = data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][:2+2*(offset%4)] + registers[rt][6:10] + data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][2+2*(offset%4)+4:]
             program_count(i)
 
         elif (op=="sb") :
-            data_memory[hex_to_dec(registers(rs))+(offset)]="0x"+"0"*6+registers[rt][8:10]
+            data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)] = data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][:2+2*(offset%4)] + registers[rt][8:10] + data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][2+2*(offset%4)+2:]
             program_count(i)
 
         else :
@@ -806,6 +835,9 @@ def func5() :
             remainder=10-len(temp2)
             temp2="0x"+temp2[2:]+"F"*remainder
         data_memory.append(temp2)
+        for i in range (100) :
+            data_memory.append("0xFFFFFFFF")
+        print(data_memory)
 
     except :
         sys.stderr.write("No file: %s\n" % filename)

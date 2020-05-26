@@ -2,13 +2,15 @@ instructions:
 
              addi    $2,$0,0
              addi    $3,$0,0
+
 loop:        slti    $4,$3,10      
              beq     $4,$0,loop_end  
              nop
              addi    $3,$3,1
              add     $2,$2,$3
              j       loop
-             nop                  
+             nop           
+                    
 loop_end:    nop
 
 data:
