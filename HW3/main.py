@@ -2,9 +2,10 @@ import binascii
 import sys
 
 arr1=[];arr2=[];arr3=[];darr1=[]
-lui_arr=[];lui_num=0
 temp_arr=[]
 is_exit=0
+operation_number=0
+total_op=0
 
 mips_code=""
 
@@ -310,19 +311,22 @@ def srav(n1, n2) :
 
 def operate(i) :
     global is_exit
+    global operation_number
+    global total_op
 
     if ( hex_to_dec_signed(registers[34])+4 >= hex_to_dec("0x00010000") ) :
-        print("Memory address out of range: ", registers[34])
+        print("Memory address out of range: "+registers[34])
         is_exit=1
+        return
         
     elif ( hex_to_dec_signed(registers[34])+4 <= 0 ) :
-        print("Memory address out of range: ", registers[34])
+        print("Memory address out of range: "+registers[34])
         is_exit=1
         return
 
     if (len(instruction_memory)<=i) :
         print("unknown instruction")
-        program_count(i)
+        program_count(i);total_op+=1
         is_exit=1
         return
 
@@ -340,28 +344,28 @@ def operate(i) :
             compute=hex_to_dec(registers[rs])+hex_to_dec(registers[rt])
             compute=dec_to_hex(compute)
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="addu") :
             compute=hex_to_dec(registers[rs])+hex_to_dec(registers[rt])
             compute=dec_to_hex(compute)
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="and") :
             compute=bitwise_and(rs,rt)
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="nor") :
             compute=bitwise_nor(rs,rt)
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="or") :
             compute=bitwise_or(rs,rt)
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="slt") :
             tmp1=hex_to_bin(registers[rs])
@@ -377,12 +381,12 @@ def operate(i) :
             else : # both are positive
                 compute=("0x00000001" if ( hex_to_dec(registers[rs]) < hex_to_dec(registers[rt]) ) else "0x00000000")
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="sltu") :
             compute=("0x00000001" if ( hex_to_dec(registers[rs]) < hex_to_dec(registers[rt]) ) else "0x00000000")
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="sub") :
             compute=hex_to_dec(registers[rs])-hex_to_dec(registers[rt])
@@ -391,7 +395,7 @@ def operate(i) :
             else :
                 compute=bin_to_hex(two_complement(dec_to_bin(-compute)))
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="subu") :
             compute=hex_to_dec(registers[rs])-hex_to_dec(registers[rt])
@@ -400,16 +404,16 @@ def operate(i) :
             else :
                 compute=bin_to_hex(two_complement(dec_to_bin(-compute)))
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="xor") :
             compute=bitwise_xor(rs,rt)
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         else :
             print("unknown instruction")
-            program_count(i)
+            program_count(i);total_op+=1
             is_exit=1
             return
         
@@ -426,39 +430,39 @@ def operate(i) :
             shamt=int(temp_arr[4])
         else :
             print("unknown instruction")
-            program_count(i)
+            program_count(i);total_op+=1
             is_exit=1
             return
 
         if (op=="sll") :
             compute=sll(rt,shamt)
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="sllv") :
             compute=sllv(rt,rs)
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="sra") : # sign extension
             compute=sra(rt,shamt)
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="srav") : # sign extension
             compute=srav(rt,rs)
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="srl") :
             compute=srl(rt,shamt)
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="srlv") :
             compute=srlv(rt,rs)
             registers[rd]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
     elif (temp_arr[1] in Immediate) :
         if (temp_arr[1]=="lui") :
@@ -478,7 +482,7 @@ def operate(i) :
             else :
                 temp=dec_to_hex(compute)
             registers[rt]=temp
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="addiu") :
             compute=hex_to_dec(registers[rs])+imm
@@ -487,26 +491,25 @@ def operate(i) :
             else :
                 temp=dec_to_hex(compute)
             registers[rt]=temp
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="andi") :
             compute=bitwise_andi(rs,imm)
             registers[rt]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="lui") :
-            global lui_num
-            remain=4-len(lui_arr[lui_num])
-            temp="0"*remain+lui_arr[lui_num]
-            compute="0x"+temp+"0000"
-            lui_num+=1
+            if (int(temp_arr[3])>=0) :
+                compute="0x"+dec_to_hex(temp_arr[3])[6:10]+"0000"
+            else :
+                compute="0x"+bin_to_hex(two_complement(dec_to_bin(temp_arr[3][1:])))[6:10]+"0000"
             registers[rt]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="ori") :
             compute=bitwise_ori(rs,imm)
             registers[rt]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="slti") :
             tmp1=hex_to_bin(registers[rs])
@@ -525,7 +528,7 @@ def operate(i) :
             else : # both are positive
                 compute=("0x00000001" if ( hex_to_dec(registers[rs]) < imm ) else "0x00000000")
             registers[rt]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="sltiu") :
             tmp1=hex_to_dec(registers[rs])
@@ -535,16 +538,16 @@ def operate(i) :
                 tmp2=bin_to_dec(two_complement(dec_to_bin(-imm)))
             compute=("0x00000001" if ( tmp1<tmp2 ) else "0x00000000")
             registers[rt]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="xori") :
             compute=bitwise_xori(rs,imm)
             registers[rt]=compute
-            program_count(i)
+            program_count(i);total_op+=1
 
         else :
             print("unknown instruction")
-            program_count(i)
+            program_count(i);total_op+=1
             is_exit=1
             return
 
@@ -558,7 +561,7 @@ def operate(i) :
             rd=int(temp_arr[2])
         else :
             print("unknown instruction")
-            program_count(i)
+            program_count(i);total_op+=1
             is_exit=1
             return
 
@@ -573,14 +576,14 @@ def operate(i) :
                 registers[33]=dec_to_hex(quotient)
             else :
                 registers[33]=bin_to_hex(two_complement(dec_to_bin(-quotient)))
-            program_count(i)
+            program_count(i);total_op+=1
             
         elif (op=="divu") :
             quotient=hex_to_dec(registers[rs])/hex_to_dec(registers[rt])
             remainder=hex_to_dec(registers[rs])%hex_to_dec(registers[rt])
             registers[32]=dec_to_hex(remainder)
             registers[33]=dec_to_hex(quotient)
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="mult") :
             step1=hex_to_dec_signed(registers[rs])*hex_to_dec_signed(registers[rt])
@@ -590,40 +593,32 @@ def operate(i) :
                 step2=two_complement_64bit(bin_to_64bit(bin(-step1)))
             registers[32]=bin_to_hex("0b"+step2[2:34])
             registers[33]=bin_to_hex("0b"+step2[34:66])
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="multu") :
             step1=hex_to_dec(registers[rs])*hex_to_dec(registers[rt])
             step2=bin_to_64bit(bin(step1))
             registers[32]=bin_to_hex("0b"+step2[2:34])
             registers[33]=bin_to_hex("0b"+step2[34:66])
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="mfhi") :
             registers[rd]=registers[32]
-            print("mfhi",registers[rd])
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="mflo") :
             registers[rd]=registers[33]
-            print("mflo",registers[rd])
-            program_count(i)
+            program_count(i);total_op+=1
             
         elif (op=="mthi") :
             registers[32]=registers[rd]
-            program_count(i)
+            program_count(i);total_op+=1
 
         elif (op=="mtlo") :
             registers[33]=registers[rd]
-            print(registers[rd])
-            program_count(i)
+            program_count(i);total_op+=1
 
-    elif (temp_arr[1] in Memory) :
-        print("="*10)
-        print(data_memory)
-        func4()
-        print("="*10)
-
+    elif (temp_arr[1] in Memory) :    
         step1=temp_arr[3].replace("("," ")
         step1=step1.replace(")"," ")
         step2=step1.split()
@@ -633,62 +628,97 @@ def operate(i) :
         op=temp_arr[1]
         rt=int(temp_arr[2])
         rs=int(temp_arr[4])
-        offset=int(temp_arr[3])
+        offset=int(temp_arr[3])    
 
         if (op=="lw") :
-            if ( 0 <= hex_to_dec(registers[rs])-268435456+(offset/4) <= 65536 ) :
-                print(hex_to_dec(registers[rs])-268435456+(offset/4))
-                registers[rt]=hex_to_full(data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)])
+            if ( 0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4 ) :
+                registers[rt]=hex_to_full(data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4])
+                program_count(i);total_op+=1
             else :
-                print(hex_to_dec(registers[rs])-268435456+(offset/4))
+                print("Memory address alignment error: "+registers[34])
+                program_count(i);total_op+=1
                 is_exit=1
-            program_count(i)
 
         elif (op=="lh") :
-            temp = data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][2+2*(offset%4):6+2*(offset%4)]
-            if (temp[0] in ["8","9","a","b","c","d","e","f"]) :
-                MSB="f"
+            if (0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4) :
+                temp = data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][2+2*((hex_to_dec(registers[rs])-268435456+offset)%4) : 6+2*((hex_to_dec(registers[rs])-268435456+offset)%4)]
+                if (temp[0] in ["8","9","a","b","c","d","e","f"]) :
+                    MSB="f"
+                else :
+                    MSB="0"
+                registers[rt]="0x"+MSB*4+temp # sign extend
+                program_count(i);total_op+=1
             else :
-                MSB="0"
-            registers[rt]="0x"+MSB*4+temp # sign extend
-            # registers[rt]="0x"+temp[2]*4+temp[2:] # sign extend
-            program_count(i)
+                print("Memory address alignment error: "+registers[34])
+                program_count(i);total_op+=1
+                is_exit=1
 
         elif (op=="lhu") :
-            temp = data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][2+2*(offset%4):6+2*(offset%4)]
-            registers[rt]="0x"+"0"*4+temp # zero extend
-            program_count(i)
+            if (0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4) :
+                temp = data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][2+2*((hex_to_dec(registers[rs])-268435456+offset)%4) : 6+2*((hex_to_dec(registers[rs])-268435456+offset)%4)]
+                registers[rt]="0x"+"0"*4+temp # zero extend
+                program_count(i);total_op+=1
+            else :
+                print("Memory address alignment error: "+registers[34])
+                program_count(i);total_op+=1
+                is_exit=1
+                
 
         elif (op=="lb") :
-            temp = data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][2+2*(offset%4):4+2*(offset%4)]
-            if (temp[0] in ["8","9","a","b","c","d","e","f"]) :
-                MSB="f"
+            if (0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4) :
+                temp = data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][2+2*((hex_to_dec(registers[rs])-268435456+offset)%4) : 4+2*((hex_to_dec(registers[rs])-268435456+offset)%4)]
+                if (temp[0] in ["8","9","a","b","c","d","e","f"]) :
+                    MSB="f"
+                else :
+                    MSB="0"
+                registers[rt]="0x"+MSB*4+temp # sign extend
+                program_count(i);total_op+=1
             else :
-                MSB="0"
-            registers[rt]="0x"+MSB*4+temp # sign extend
-            # registers[rt]="0x"+temp[2]*4+temp[2:] # sign extend
-            program_count(i)
+                print("Memory address alignment error: "+registers[34])
+                program_count(i);total_op+=1
+                is_exit=1
+
 
         elif (op=="lbu") :
-            temp = data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][2+2*(offset%4):4+2*(offset%4)]
-            registers[rt]="0x"+"0"*6+temp # zero extend
-            program_count(i)
+            if (0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4) :
+                temp = data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][2+2*((hex_to_dec(registers[rs])-268435456+offset)%4) : 4+2*((hex_to_dec(registers[rs])-268435456+offset)%4)]
+                registers[rt]="0x"+"0"*6+temp # zero extend
+                program_count(i);total_op+=1
+            else :
+                print("Memory address alignment error: "+registers[34])
+                program_count(i);total_op+=1
+                is_exit=1
 
         elif (op=="sw") :
-            data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)]=registers[rt]
-            program_count(i)
+            if (0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4) :
+                data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4]=registers[rt]
+                program_count(i);total_op+=1
+            else :
+                print("Memory address alignment error: "+registers[34])
+                program_count(i);total_op+=1
+                is_exit=1
             
         elif (op=="sh") :
-            data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)] = data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][:2+2*(offset%4)] + registers[rt][6:10] + data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][2+2*(offset%4)+4:]
-            program_count(i)
+            if (0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4) :
+                data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4] = data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][:2+2*((hex_to_dec(registers[rs])-268435456+offset)%4)] + registers[rt][6:10] + data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][2+2*((hex_to_dec(registers[rs])-268435456+offset)%4)+4:]
+                program_count(i);total_op+=1
+            else :
+                print("Memory address alignment error: "+registers[34])
+                program_count(i);total_op+=1
+                is_exit=1
 
         elif (op=="sb") :
-            data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)] = data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][:2+2*(offset%4)] + registers[rt][8:10] + data_memory[hex_to_dec(registers[rs])-268435456+(offset/4)][2+2*(offset%4)+2:]
-            program_count(i)
+            if (0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4) :
+                data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4] = data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][:2+2*((hex_to_dec(registers[rs])-268435456+offset)%4)] + registers[rt][8:10] + data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][2+2*((hex_to_dec(registers[rs])-268435456+offset)%4)+2:]
+                program_count(i);total_op+=1
+            else :
+                print("Memory address alignment error: "+registers[34])
+                program_count(i);total_op+=1
+                is_exit=1
 
         else :
             print("unknown instruction")
-            program_count(i)
+            program_count(i);total_op+=1
             is_exit=1
             return
 
@@ -701,54 +731,92 @@ def operate(i) :
         elif (temp_arr[1] in ["j", "jal"]) :
             op=temp_arr[1]
             target=int(temp_arr[2])
-        elif (temp_arr[1] in ["jr","jalr"]) :
+        elif (temp_arr[1] in ["jr"]) :
             op=temp_arr[1]
             rs=int(temp_arr[2])
+        elif (temp_arr[1] in ["jalr"]) :
+            op=temp_arr[1]
+            rd=int(temp_arr[2])
+            rs=int(temp_arr[3])
         else :
             print("unknown instruction")
-            program_count(i)
+            program_count(i);total_op+=1
             is_exit=1
             return
 
         if (op=="beq") :
             if ( registers[rs] == registers[rt] ) :
-                operate(label)
+                operation_number+=label
+                program_count(i);total_op+=1
+            else :
+                program_count(i);total_op+=1
 
         elif (op=="bne") :
             if ( registers[rs] != registers[rt] ) :
-                operate(label)
+                operation_number+=label
+                program_count(i);total_op+=1
+            else :
+                program_count(i);total_op+=1
 
         elif (op=="j") :
+            operation_number=target
             operate(target)
+            program_count(i);total_op+=1
 
         elif (op=="jal") :
-            registers[31]=registers[34]
+            registers[31]=dec_to_hex(hex_to_dec(registers[34])+4)
+            operation_number=target
             operate(target)
+            program_count(i);total_op+=1
 
         elif (op=="jr") :
-            operate(hex_to_dec(registers[rs]))
+            operation_number=(hex_to_dec(registers[rs])/4)
+            operate(operation_number)
+            program_count(i);total_op+=1
 
         elif (op=="jalr") :
-            registers[31]=dec_to_hex(hex_to_dec(registers[34])+4)
-            operate(hex_to_dec(registers[rs]))
+            registers[rd]=dec_to_hex(hex_to_dec(registers[34])+4)
+            operation_number=(hex_to_dec(registers[rs])/4)
+            operate(operation_number)
+            program_count(i);total_op+=1
 
     elif (temp_arr[1] in SystemCall) :
-        check=int(hex_to_dec(registers[2]))
+        check=hex_to_dec(registers[2])
         if (check==1) :
-            print(hex_to_dec(registers[4]))
+            print(hex_to_dec_signed(registers[4])),
+            program_count(i);total_op+=1
+
         elif (check==4)  :
-            print("registers[4] pointing string print")
+            temp=data_memory[ ((hex_to_dec(registers[4])-268435456)/4) ][2+2*((hex_to_dec(registers[4])-268435456)%4): ]
+            j=1
+            while True :
+                if ("00" in temp) :
+                    break
+                else :
+                    temp += data_memory[ ((hex_to_dec(registers[4])-268435456)/4) + j ][2:]
+                    j+=1
+            temp=temp[:temp.find("00")]
+            str1=""
+            for j in range (0,len(temp),2) :
+                str1+=chr(hex_to_dec(hex_to_full("0x"+temp[j:j+2])))
+            print(str1),
+            program_count(i);total_op+=1
+
         elif (check==10)  :
-            print("EXIT SYSCALL")
+            print("EXIT syscall")
+            program_count(i);total_op+=1
             is_exit=1
             return
+
         else :
             print("Invalid syscall")
+            program_count(i);total_op+=1
             is_exit=1
             return
 
     else :
         print("unknown instruction")
+        program_count(i);total_op+=1
         is_exit=1
         return
 
@@ -787,20 +855,24 @@ def func2() :
 def func3() :
     # command == run
     global is_exit
+    global operation_number
+    operation_number=0 # initiate
+
     num=int(command[4:])
-    for i in range(num) :
-        if (i < len(instruction_memory)) :
-            operate(i)
+    while True :
+        if (operation_number < len(instruction_memory)) :
+            operate(operation_number)
             if (is_exit==1) :
-                print("Executed %d instructions" % (i+1))
+                print("Executed %d instructions" % (total_op))
                 return
-            if (i==num-1) :
-                print("Executed %d instructions" % (i+1))
+            if (operation_number==num-1) :
+                print("Executed %d instructions" % (total_op+1))
                 return
         else :
-            operate(i)
+            program_count(operation_number)
             break
-    print("Executed %d instructions" % (i+1))
+        operation_number+=1
+    print("Executed %d instructions" % (total_op+1))
          
 def func4() :
     # command == registers
@@ -832,12 +904,11 @@ def func5() :
         temp2="0x"
         for i in range(remainder) :
             temp2+=(darr1[quotient*4+i])
-            remainder=10-len(temp2)
-            temp2="0x"+temp2[2:]+"F"*remainder
+        remainder=10-len(temp2)
+        temp2="0x"+temp2[2:]+"F"*remainder
         data_memory.append(temp2)
-        for i in range (100) :
+        for i in range (51200) :
             data_memory.append("0xFFFFFFFF")
-        print(data_memory)
 
     except :
         sys.stderr.write("No file: %s\n" % filename)
@@ -1025,7 +1096,6 @@ def convert_to_MIPS(agree) :
             elif opcode==15 :
                 op="lui"
                 mips_code=str(arr2[i])+" "+op+" $"+str(rt)+", "+str(imm)
-                lui_arr.append(arr2[i][4:])
             else :
                 mips_code=str(arr2[i])+" unknown instruction"
         if (agree==1) :
