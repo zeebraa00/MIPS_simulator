@@ -78,15 +78,12 @@ for i in range (total_operation) :
 
         if (valid_bit[now_index]==1) :
             if (tag_array[now_index]==now_tag) :
-                print(i,"hit")
                 hit_num+=1
             else :
-                print(i,"miss")
                 miss_num+=1
                 tag_array[now_index]=now_tag
 
         else :
-            print(i,"miss")
             miss_num+=1
             tag_array[now_index]=now_tag
             valid_bit[now_index]=1
@@ -100,16 +97,13 @@ for i in range (total_operation) :
 
         if (valid_bit[now_index]==1) :
             if (tag_array[now_index]==now_tag) :
-                print(i,"write_hit")
                 write_num+=1
                 hit_num+=1
             else :
-                print(i,"write_miss")
                 write_num+=1
                 miss_num+=1
 
         else :
-            print(i,"write_miss")
             miss_num+=1
             write_num+=1
 
@@ -123,7 +117,6 @@ for i in range (total_operation) :
         now_offset=full_instruction[28:34]
         
         if ( (valid_bit[now_index]==0) and (valid_bit_2[now_index]==0) ) :
-            print(i,"miss")
             miss_num+=1
             lru_num=lru[now_index]
             if (lru_num==0) :
@@ -137,50 +130,39 @@ for i in range (total_operation) :
         
         elif ( (valid_bit[now_index]==1) and (valid_bit_2[now_index]==0) ) :
             if (tag_array[now_index]==now_tag) :
-                print(i,"hit")
-                hit_num+=1
-                lru[now_index]=1
+                hit_num += 1
+                lru[now_index]= 1
             else :
-                print(i,"miss")
                 miss_num+=1
                 valid_bit_2[now_index]=1
                 tag_array_2[now_index]=now_tag
-                lru[now_index]=0
+                lru[now_index] = 0
 
         elif ( (valid_bit[now_index]==0) and (valid_bit_2[now_index]==1) ) :
             if (tag_array_2[now_index]==now_tag) :
-                print(i,"hit")
                 hit_num+=1
-                lru[now_index]=0
+                lru[now_index] = 0
             else :
-                print(i,"miss")
                 miss_num+=1
                 valid_bit[now_index]=1
                 tag_array[now_index]=now_tag
-                if (lru[now_index]==1) :
-                    lru[now_index]=0
-                else :
-                    lru[now_index]=1
+                lru[now_index] = 1
         else :
             if (tag_array[now_index]==now_tag) :
-                print(i,"hit")
                 hit_num+=1
                 lru[now_index]=1
-                dirty[now_index]=1
+                # dirty[now_index]=1 ####fuck
             elif (tag_array_2[now_index]==now_tag) :
-                print(i,"hit")
                 hit_num+=1
                 lru[now_index]=0
-                dirty_2[now_index]=1
+                # dirty_2[now_index]=1 ####fuck
             else :
-                print(i,"miss")
                 miss_num+=1
 
                 lru_num=lru[now_index]
                 if (lru_num==0) :
                     if (dirty[now_index]==1) :
                         write_num+=1 ##########################
-                        print("MemWrite")
                         dirty[now_index]=0
                     valid_bit[now_index]=1
                     tag_array[now_index]=now_tag
@@ -188,7 +170,6 @@ for i in range (total_operation) :
                 else :
                     if (dirty_2[now_index]==1) :
                         write_num+=1 ##########################
-                        print("MemWrite")
                         dirty_2[now_index]=0
                     tag_array_2[now_index]=now_tag
                     valid_bit_2[now_index]=1
@@ -205,7 +186,6 @@ for i in range (total_operation) :
 
         if ( (valid_bit[now_index]==0) and (valid_bit_2[now_index]==0) ) :
             miss_num+=1
-            print(i,"miss")
             if (lru[now_index]==0) :
                 valid_bit[now_index]=1
                 tag_array[now_index]=now_tag
@@ -219,13 +199,11 @@ for i in range (total_operation) :
 
         elif ( (valid_bit[now_index]==1) and (valid_bit_2[now_index]==0) ) :
             if (tag_array[now_index]==now_tag) :
-                print(i,"hit")
                 hit_num+=1
-                #dirty[now_index]=1 #0
+                dirty[now_index]=1 #0
                 lru[now_index]=1
 
             else :
-                print(i,"miss")
                 miss_num+=1
                 valid_bit_2[now_index]=1
                 tag_array_2[now_index]=now_tag
@@ -235,12 +213,10 @@ for i in range (total_operation) :
         elif ( (valid_bit[now_index]==0) and (valid_bit_2[now_index]==1) ) :
             if (tag_array_2[now_index]==now_tag) :
                 hit_num+=1
-                print(i,"hit")
-                #dirty_2[now_index]=1 #0
+                dirty_2[now_index]=1 #0
                 lru[now_index]=0
 
             else :
-                print(i,"miss")
                 miss_num+=1
                 valid_bit[now_index]=1
                 tag_array[now_index]=now_tag
@@ -249,19 +225,17 @@ for i in range (total_operation) :
 
         else :
             if (tag_array[now_index]==now_tag) :
-                print(i,"hit")
                 hit_num+=1
                 dirty[now_index]=1 ##########
                 lru[now_index]=1
             elif (tag_array_2[now_index]==now_tag) :
-                print(i,"hit")
                 hit_num+=1
                 dirty_2[now_index]=1 ############
                 lru[now_index]=0
             else : ##########################################################
                 if (lru[now_index]==0) :
                     miss_num+=1
-                    print(i,"miss")
+
 
                     valid_bit[now_index]=1
                     tag_array[now_index]=now_tag
@@ -272,7 +246,7 @@ for i in range (total_operation) :
 
                 elif (lru[now_index]==1) :
                     miss_num+=1
-                    print(i,"miss")
+
 
                     valid_bit_2[now_index]=1
                     tag_array_2[now_index]=now_tag
