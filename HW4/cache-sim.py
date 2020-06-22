@@ -281,11 +281,4 @@ for i in range (total_operation) :
 #############################################################################################
 #############################################################################################
 
-print("total")
-print(total_operation)
-print("miss_num")
-print(miss_num)
-print("hit_num")
-print(hit_num)
-print("write_num")
-print(write_num)
+print("{0} {1}" .format(miss_num, write_num ))
