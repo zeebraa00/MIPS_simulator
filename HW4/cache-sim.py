@@ -151,23 +151,27 @@ for i in range (total_operation) :
             if (tag_array_2[now_index]==now_tag) :
                 print(i,"hit")
                 hit_num+=1
-                lru[now_index]=1
+                lru[now_index]=0
             else :
                 print(i,"miss")
                 miss_num+=1
                 valid_bit[now_index]=1
                 tag_array[now_index]=now_tag
-                lru[now_index]=1
-
+                if (lru[now_index]==1) :
+                    lru[now_index]=0
+                else :
+                    lru[now_index]=1
         else :
             if (tag_array[now_index]==now_tag) :
                 print(i,"hit")
                 hit_num+=1
                 lru[now_index]=1
+                dirty[now_index]=1
             elif (tag_array_2[now_index]==now_tag) :
                 print(i,"hit")
                 hit_num+=1
                 lru[now_index]=0
+                dirty_2[now_index]=1
             else :
                 print(i,"miss")
                 miss_num+=1
@@ -217,7 +221,7 @@ for i in range (total_operation) :
             if (tag_array[now_index]==now_tag) :
                 print(i,"hit")
                 hit_num+=1
-                # dirty[now_index]=1
+                #dirty[now_index]=1 #0
                 lru[now_index]=1
 
             else :
@@ -232,7 +236,7 @@ for i in range (total_operation) :
             if (tag_array_2[now_index]==now_tag) :
                 hit_num+=1
                 print(i,"hit")
-                # dirty_2[now_index]=1
+                #dirty_2[now_index]=1 #0
                 lru[now_index]=0
 
             else :
@@ -258,6 +262,7 @@ for i in range (total_operation) :
                 if (lru[now_index]==0) :
                     miss_num+=1
                     print(i,"miss")
+
                     valid_bit[now_index]=1
                     tag_array[now_index]=now_tag
                     if (dirty[now_index]==1) :
@@ -268,6 +273,7 @@ for i in range (total_operation) :
                 elif (lru[now_index]==1) :
                     miss_num+=1
                     print(i,"miss")
+
                     valid_bit_2[now_index]=1
                     tag_array_2[now_index]=now_tag
                     if (dirty_2[now_index]==1) :
