@@ -1,6 +1,8 @@
 import binascii
 import sys
 
+big_constant=pow(2,28)
+
 arr1=[];arr2=[];arr3=[];darr1=[]
 temp_arr=[]
 is_exit=0
@@ -631,8 +633,8 @@ def operate(i) :
         offset=int(temp_arr[3])    
 
         if (op=="lw") :
-            if ( 0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4 ) :
-                registers[rt]=hex_to_full(data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4])
+            if ( 0 <= (hex_to_dec(registers[rs])-big_constant+offset)/4 <= 65536/4 ) :
+                registers[rt]=hex_to_full(data_memory[(hex_to_dec(registers[rs])-big_constant+offset)/4])
                 program_count(i);total_op+=1
             else :
                 print("Memory address alignment error: "+registers[34])
@@ -640,8 +642,8 @@ def operate(i) :
                 is_exit=1
 
         elif (op=="lh") :
-            if (0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4) :
-                temp = data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][2+2*((hex_to_dec(registers[rs])-268435456+offset)%4) : 6+2*((hex_to_dec(registers[rs])-268435456+offset)%4)]
+            if (0 <= (hex_to_dec(registers[rs])-big_constant+offset)/4 <= 65536/4) :
+                temp = data_memory[(hex_to_dec(registers[rs])-big_constant+offset)/4][2+2*((hex_to_dec(registers[rs])-big_constant+offset)%4) : 6+2*((hex_to_dec(registers[rs])-big_constant+offset)%4)]
                 if (temp[0] in ["8","9","a","b","c","d","e","f"]) :
                     MSB="f"
                 else :
@@ -654,8 +656,8 @@ def operate(i) :
                 is_exit=1
 
         elif (op=="lhu") :
-            if (0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4) :
-                temp = data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][2+2*((hex_to_dec(registers[rs])-268435456+offset)%4) : 6+2*((hex_to_dec(registers[rs])-268435456+offset)%4)]
+            if (0 <= (hex_to_dec(registers[rs])-big_constant+offset)/4 <= 65536/4) :
+                temp = data_memory[(hex_to_dec(registers[rs])-big_constant+offset)/4][2+2*((hex_to_dec(registers[rs])-big_constant+offset)%4) : 6+2*((hex_to_dec(registers[rs])-big_constant+offset)%4)]
                 registers[rt]="0x"+"0"*4+temp # zero extend
                 program_count(i);total_op+=1
             else :
@@ -665,8 +667,8 @@ def operate(i) :
                 
 
         elif (op=="lb") :
-            if (0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4) :
-                temp = data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][2+2*((hex_to_dec(registers[rs])-268435456+offset)%4) : 4+2*((hex_to_dec(registers[rs])-268435456+offset)%4)]
+            if (0 <= (hex_to_dec(registers[rs])-big_constant+offset)/4 <= 65536/4) :
+                temp = data_memory[(hex_to_dec(registers[rs])-big_constant+offset)/4][2+2*((hex_to_dec(registers[rs])-big_constant+offset)%4) : 4+2*((hex_to_dec(registers[rs])-big_constant+offset)%4)]
                 if (temp[0] in ["8","9","a","b","c","d","e","f"]) :
                     MSB="f"
                 else :
@@ -680,8 +682,8 @@ def operate(i) :
 
 
         elif (op=="lbu") :
-            if (0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4) :
-                temp = data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][2+2*((hex_to_dec(registers[rs])-268435456+offset)%4) : 4+2*((hex_to_dec(registers[rs])-268435456+offset)%4)]
+            if (0 <= (hex_to_dec(registers[rs])-big_constant+offset)/4 <= 65536/4) :
+                temp = data_memory[(hex_to_dec(registers[rs])-big_constant+offset)/4][2+2*((hex_to_dec(registers[rs])-big_constant+offset)%4) : 4+2*((hex_to_dec(registers[rs])-big_constant+offset)%4)]
                 registers[rt]="0x"+"0"*6+temp # zero extend
                 program_count(i);total_op+=1
             else :
@@ -690,8 +692,8 @@ def operate(i) :
                 is_exit=1
 
         elif (op=="sw") :
-            if (0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4) :
-                data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4]=registers[rt]
+            if (0 <= (hex_to_dec(registers[rs])-big_constant+offset)/4 <= 65536/4) :
+                data_memory[(hex_to_dec(registers[rs])-big_constant+offset)/4]=registers[rt]
                 program_count(i);total_op+=1
             else :
                 print("Memory address alignment error: "+registers[34])
@@ -699,8 +701,8 @@ def operate(i) :
                 is_exit=1
             
         elif (op=="sh") :
-            if (0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4) :
-                data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4] = data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][:2+2*((hex_to_dec(registers[rs])-268435456+offset)%4)] + registers[rt][6:10] + data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][2+2*((hex_to_dec(registers[rs])-268435456+offset)%4)+4:]
+            if (0 <= (hex_to_dec(registers[rs])-big_constant+offset)/4 <= 65536/4) :
+                data_memory[(hex_to_dec(registers[rs])-big_constant+offset)/4] = data_memory[(hex_to_dec(registers[rs])-big_constant+offset)/4][:2+2*((hex_to_dec(registers[rs])-big_constant+offset)%4)] + registers[rt][6:10] + data_memory[(hex_to_dec(registers[rs])-big_constant+offset)/4][2+2*((hex_to_dec(registers[rs])-big_constant+offset)%4)+4:]
                 program_count(i);total_op+=1
             else :
                 print("Memory address alignment error: "+registers[34])
@@ -708,8 +710,8 @@ def operate(i) :
                 is_exit=1
 
         elif (op=="sb") :
-            if (0 <= (hex_to_dec(registers[rs])-268435456+offset)/4 <= 65536/4) :
-                data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4] = data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][:2+2*((hex_to_dec(registers[rs])-268435456+offset)%4)] + registers[rt][8:10] + data_memory[(hex_to_dec(registers[rs])-268435456+offset)/4][2+2*((hex_to_dec(registers[rs])-268435456+offset)%4)+2:]
+            if (0 <= (hex_to_dec(registers[rs])-big_constant+offset)/4 <= 65536/4) :
+                data_memory[(hex_to_dec(registers[rs])-big_constant+offset)/4] = data_memory[(hex_to_dec(registers[rs])-big_constant+offset)/4][:2+2*((hex_to_dec(registers[rs])-big_constant+offset)%4)] + registers[rt][8:10] + data_memory[(hex_to_dec(registers[rs])-big_constant+offset)/4][2+2*((hex_to_dec(registers[rs])-big_constant+offset)%4)+2:]
                 program_count(i);total_op+=1
             else :
                 print("Memory address alignment error: "+registers[34])
@@ -787,13 +789,13 @@ def operate(i) :
             program_count(i);total_op+=1
 
         elif (check==4)  :
-            temp=data_memory[ ((hex_to_dec(registers[4])-268435456)/4) ][2+2*((hex_to_dec(registers[4])-268435456)%4): ]
+            temp=data_memory[ ((hex_to_dec(registers[4])-big_constant)/4) ][2+2*((hex_to_dec(registers[4])-big_constant)%4): ]
             j=1
             while True :
                 if ("00" in temp) :
                     break
                 else :
-                    temp += data_memory[ ((hex_to_dec(registers[4])-268435456)/4) + j ][2:]
+                    temp += data_memory[ ((hex_to_dec(registers[4])-big_constant)/4) + j ][2:]
                     j+=1
             temp=temp[:temp.find("00")]
             str1=""
